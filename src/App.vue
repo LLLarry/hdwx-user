@@ -1,32 +1,41 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+  <div id="app" class="text-size-md text-333">
+    <router-view />
   </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+<script>
+export default {
+  beforeMount () {
+    /* 在页面挂载之前删除加载loading */
+    const loadingBox = document.querySelector('.loading-box')
+    if (loadingBox) {
+      loadingBox.parentNode.removeChild(loadingBox)
     }
+  },
+  mounted () {
+    document.addEventListener('touchstart', function () {})
   }
+}
+</script>
+
+<style lang="scss">
+@import './assets/style/base.css';
+@import './assets/style/hdwx-bootstrap.css';
+// @import './assets/style/iconfont.css';
+@import './assets/style/animate.css';
+@font-face {
+    font-family: "mathNum";
+    src: url("./assets/fonts/number/DINMITTELSCHRIFT.woff2") format("woff2"),
+        url("./assets/fonts/number/DINMITTELSCHRIFT.woff") format("woff"),
+        url("./assets/fonts/number/DINMITTELSCHRIFT.ttf") format("truetype"),
+        url("./assets/fonts/number/DINMITTELSCHRIFT.eot") format("embedded-opentype"),
+        url("./assets/fonts/number/DINMITTELSCHRIFT.svg") format("svg");
+}
+.math-num {
+    font-family: "mathNum";
+}
+#app {
+  min-height: 100vh;
 }
 </style>

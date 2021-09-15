@@ -1,0 +1,17 @@
+.hd_animate {
+    /* animation: HD_ROTATE 1s linear infinite; */
+    animation-timing-function: linear;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+}
+.hd_animate_rotate {
+    animation-name: HD_ROTATE;
+}
+@keyframes HD_ROTATE {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
