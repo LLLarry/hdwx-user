@@ -21,9 +21,12 @@ const routes = [
   {
     path: '/chargeicon',
     name: 'charge-icon',
-    component: () => import(/* webpackChunkName: "charge-icon" */ '../views/charge/icon/index.vue'),
-    meta: {
-    }
+    component: () => import(/* webpackChunkName: "charge-icon" */ '../views/charge/icon/index.vue')
+  },
+  {
+    path: '/wisdom',
+    name: 'wisdom',
+    component: () => import(/* webpackChunkName: "wisdom" */ '../views/charge/wisdom/index.vue')
   }
 ]
 

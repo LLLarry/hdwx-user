@@ -1,23 +1,28 @@
 <template>
-    <ul class="select-paytype text-size-default">
-        <li class="select-paytype-item padding-x-3" v-for="(item, index) in list" :key="index" @click="handleSelect(item)">
-             <!-- 无插槽的情况 -->
-            <div class="select-paytype-box d-flex align-items-center border-bottom-1 border-eee padding-y-2 position-relative" v-if="typeof item === 'string'">
-                <i class="iconfont icon-weixin text-success left-icon" v-if="item === '微信支付'"></i>
-                <i class="iconfont icon-qianbao left-icon" v-else-if="item === '钱包支付'"></i>
-                <span class="margin-x-2">{{item}}</span>
-                <van-icon v-show="paytypeMap[item] === select && select > 0" name="success" color="#28a745" size="25px" class="select-icon position-absolute" />
-            </div>
-            <!-- 有插槽的情况 -->
-            <div class="select-paytype-box d-flex align-items-center border-bottom-1 border-eee padding-y-2 position-relative" v-else>
-                <i class="iconfont icon-weixin text-success left-icon" v-if="item.title === '微信支付'"></i>
-                <i class="iconfont icon-qianbao text-success left-icon" v-else-if="item.title === '钱包支付'"></i>
-                <span class="margin-x-2">{{item.title}}</span>
-                <slot v-bind:data="item"></slot>
-                <van-icon v-show="paytypeMap[item.title] === select && select > 0" name="success" color="#28a745" size="25px" class="select-icon position-absolute" />
-            </div>
-        </li>
-    </ul>
+    <div class="select-paytype">
+        <hd-title class="text-000">请选择支付方式</hd-title>
+        <ul class="text-size-default">
+            <li class="select-paytype-item padding-x-3" v-for="(item, index) in list" :key="index" @click="handleSelect(item)">
+                <!-- 无插槽的情况 -->
+                <div class="select-paytype-box d-flex align-items-center border-bottom-1 border-eee padding-y-2 position-relative" v-if="typeof item === 'string'">
+                    <i class="iconfont icon-weixin text-success left-icon" v-if="item === '微信支付'"></i>
+                    <i class="iconfont icon-qianbao left-icon" v-else-if="item === '钱包支付'"></i>
+                    <i class="iconfont icon-peizhitubiaosvg- text-info left-icon" v-else-if="item === '包月支付'"></i>
+                    <span class="margin-x-2">{{item}}</span>
+                    <van-icon v-show="paytypeMap[item] === select && select > 0" name="success" color="#28a745" size="25px" class="select-icon position-absolute" />
+                </div>
+                <!-- 有插槽的情况 -->
+                <div class="select-paytype-box d-flex align-items-center border-bottom-1 border-eee padding-y-2 position-relative" v-else>
+                    <i class="iconfont icon-weixin text-success left-icon" v-if="item.title === '微信支付'"></i>
+                    <i class="iconfont icon-qianbao text-success left-icon" v-else-if="item.title === '钱包支付'"></i>
+                    <i class="iconfont icon-peizhitubiaosvg- text-info left-icon" v-else-if="item.title === '包月支付'"></i>
+                    <span class="margin-x-2">{{item.title}}</span>
+                    <slot v-bind:data="item"></slot>
+                    <van-icon v-show="paytypeMap[item.title] === select && select > 0" name="success" color="#28a745" size="25px" class="select-icon position-absolute" />
+                </div>
+            </li>
+        </ul>
+    </div>
 </template>
 
 <script>
@@ -63,8 +68,13 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .select-paytype {
+    .hd-title {
+        div {
+            font-weight: normal;
+        }
+    }
     .select-paytype-item {
         &:last-child {
             .select-paytype-box {
@@ -78,7 +88,7 @@ export default {
             .left-icon {
                 font-size: 30px;
                 &.icon-qianbao {
-                    color: #DFB94C;
+                    color: #DFB94C !important;
                 }
             }
             .select-icon {

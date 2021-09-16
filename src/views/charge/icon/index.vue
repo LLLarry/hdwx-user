@@ -10,11 +10,12 @@
           </select-post>
       </div>
       <hd-line />
-      <hd-title>请选择支付方式</hd-title>
       <div>
           <select-paytype :list="selectPaytype" :select="selectPayTypeNum" @selectPayTypeBack="selectPayTypeBack">
               <template v-slot:default="{data}">
-                  <span v-if="
+                  <span
+                  class="text-size-sm text-p"
+                  v-if="
                     typeof data !== 'string'
                   ">（{{data.slot}}）</span>
               </template>
@@ -43,8 +44,8 @@
 import SelectPost from '@/components/charge/select-post'
 import Header from '@/components/charge/header'
 import SelectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
-import { getChargeDataByCodeAndOpenid, inCoinsPay } from '@/require/charge'
-import { verification } from '@/utils/util'
+import { getChargeDataByCodeAndOpenid, inCoinsPay, inCoinsWalletPay } from '@/require/charge'
+import { verification, fmtMoney } from '@/utils/util'
 import wxpay from '@/utils/wxUtil/wxpay'
 
 export default {
@@ -61,7 +62,7 @@ export default {
     data () {
         return {
             selectPostIndex: -1, // 选择投币个数索引
-            selectPaytype: ['微信支付'/* '钱包支付', { title: '包月支付', slot: '123456' } */],
+            selectPaytype: ['微信支付', '钱包支付'/* , { title: '包月支付', slot: '123456' } */],
             selectPayTypeNum: paytypeMap['微信支付'], // 默认选中微信支付,
             query: '',
             serverPhone: '', // 服务电话,
@@ -91,19 +92,20 @@ export default {
         // 获取初始化数据
         async getInitData (data) {
             try {
-                const { code, message, servephone, areaname, templateLists, brandname = '脉冲充电' } = await getChargeDataByCodeAndOpenid(data)
+                const { code, message, servephone, areaname, templateLists, brandname = '脉冲充电', tourtopupbalance, touristsendbalance } = await getChargeDataByCodeAndOpenid(data)
                 if (code === 200) {
                     this.serverPhone = servephone
                     this.areaname = areaname
                     this.tempList = templateLists
                     this.title = brandname
+                    this.selectPaytype.splice(1, 1, { title: '钱包支付', slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}` })
                 } else {
                     this.$dialog.alert({
                         title: '提示',
                         message: message,
                         beforeClose: (action, done) => {
                             done()
-                             wx.closeWindow()
+                            wx.closeWindow()
                         }
                     })
                 }
@@ -132,9 +134,17 @@ export default {
             ]
             return verification(verifiList)
         },
-        async goCharge () {
+        goCharge () {
             // 验证登录选择信息
             if (!this.verifi()) return false
+            if (this.selectPayTypeNum === 1) { // 微信支付
+                this.bywxpay()
+            } else if (this.selectPayTypeNum === 2) { // 钱包支付
+                this.bywalletpay()
+            }
+        },
+        // 微信支付
+        async bywxpay () {
             // 获取脉冲加密信息
             const info = await inCoinsPay({
                 openId: this.openid,
@@ -156,6 +166,43 @@ export default {
                     }
                 })
             })
+        },
+        async bywalletpay () {
+            try {
+                const { code, message, result } = await inCoinsWalletPay({
+                    openId: this.openid,
+                    code: this.code,
+                    port: 1,
+                    tempid: this.tempList[this.selectPostIndex].id
+                })
+                if (code === 200) {
+                    this.$dialog.alert({
+                        title: '提示',
+                        message: '支付成功',
+                        beforeClose: (action, done) => {
+                            console.log(result, result.orderNum)
+                            window.location.replace('/general/walletPayment?source=2&orderNum=' + result.orderNum + '&payMoney=' + result.payMoney + '&devicenum=' + result.devicenum)
+                            done()
+                        }
+                    })
+                } else {
+                    this.$dialog.alert({
+                        title: '提示',
+                        message: message,
+                        beforeClose: (action, done) => {
+                            done()
+                        }
+                    })
+                }
+            } catch {
+                this.$dialog.alert({
+                    title: '提示',
+                    message: '异常错误',
+                    beforeClose: (action, done) => {
+                        done()
+                    }
+                })
+            }
         }
     }
 }
@@ -164,5 +211,11 @@ export default {
 <style lang="scss">
 .charge-icon {
     padding-top: 90px;
+    .hd-title {
+        div {
+            color: #333;
+            font-weight: bold;
+        }
+    }
 }
 </style>
