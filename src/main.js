@@ -40,7 +40,7 @@ Vue.component('hd-title', HdTitle)
 Vue.mixin({
   metaInfo () {
       return {
-          title: this.title
+          title: this.titleText
       }
   }
 })

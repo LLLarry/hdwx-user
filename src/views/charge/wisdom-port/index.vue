@@ -1,18 +1,26 @@
 <template>
     <div class="wisdom">
         <!-- 顶部区域 -->
-        <Header :code="code" :areaname="areaname" :serverPhone="serverPhone" :chargeTip="chargeTip"></Header>
+        <Header
+            :code="code"
+            :areaname="areaname"
+            :serverPhone="serverPhone"
+            :chargeTip="chargeTip"
+            :isPort="isPort"
+            @openOrClose="openOrClose"
+            ref="header"
+        ></Header>
         <main class="padding-top-2">
-            <select-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" />
         </main>
         <van-popup
             v-model="show"
             position="bottom"
             duration=".4s"
-            :style="{ bottom: '2.133rem', maxHeight: '75vh'}"
+            :overlay="false"
+            :style="{ bottom: '2.133rem', maxHeight: '75vh', 'box-shadow' : `${isPort ? '0 -0.0533rem 0.32rem rgba(100, 101, 102, 0.24)' : 'none'}`}"
             :overlay-style="{ height: 'calc(100% - 2.133rem)'}"
             @open="level = true"
-            @closed="level = false"
+            @closed="closed"
         >
             <div class="padding-bottom-3">
                 <!-- 选择插座提示 -->
@@ -50,18 +58,16 @@
 <script>
 import Header from '@/components/charge/header'
 import Footer from '@/components/charge/footer'
-import selectPort from '@/components/charge/select-port'
 import selectPortTip from '@/components/charge/select-port-tip'
 import selectTemp from '@/components/charge/select-temp'
 import chargeOverlay from '@/components/charge/charge-overlay'
 import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
 import { verification, fmtMoney } from '@/utils/util'
 import { deviceCharge, walletChargePay } from '@/require/charge'
-import { verifiUserIfCharge, wxPayFun } from '../helper.js'
+import { wxPayFun } from '../helper.js'
 export default {
     components: {
         Header,
-        selectPort,
         Footer,
         selectPaytype,
         selectTemp,
@@ -70,32 +76,22 @@ export default {
     },
     data () {
         return {
+            isPort: true, // 是否是扫端口页面
             code: '',
             openid: '',
             serverPhone: '',
             areaname: '',
             titleText: '智慧款充电', // titleText
-            chargeTip: {
-                chargeInfo: null, // 收费标准
-                payhint: '' // 收费说明，下次不再提醒是否展示
-            },
             orderid: '', // 续充订单的订单id
             aid: '', // 设备所属小区id
             merid: '', // 设备所属商户id
             tourtopupbalance: 0, // 充值金额
             touristsendbalance: 0, // 赠送金额
-            portList: [
-                { port: 1, portStatus: 1 },
-                { port: 2, portStatus: 1 },
-                { port: 3, portStatus: 1 },
-                { port: 4, portStatus: 1 },
-                { port: 5, portStatus: 1 },
-                { port: 6, portStatus: 1 },
-                { port: 7, portStatus: 1 },
-                { port: 8, portStatus: 1 },
-                { port: 9, portStatus: 1 },
-                { port: 10, portStatus: 1 }
-            ],
+            chargeTip: {
+                chargeInfo: null, // 收费标准
+                payhint: '' // 收费说明，下次不再提醒是否展示
+                // defaultShow: true // 默认充电提示是否显示
+            },
             selectPort: -1, // 选中的端口号
             show: false,
             templatelist: [],
@@ -121,36 +117,16 @@ export default {
         }
     },
     mounted () {
-        const { code, openid } = this.$route.query
+        const { code, openid, port } = this.$route.query
         this.code = code
         this.openid = openid
+        this.selectPort = port
         this.getInitData({
             code,
             openid
         })
     },
     methods: {
-        handleSelectPort ({ port, portStatus }) {
-            if (portStatus === 3 || portStatus === 4) { // 故障端口
-                this.toast('此端口为故障端口')
-            } else if (portStatus === 1) { // 空闲端口
-                this.selectPort = port
-                this.show = true
-            } else { // 使用端口
-                // 检验当前使用端口能否作为本人续充端口使用
-                verifiUserIfCharge({
-                    openid: this.openid,
-                    code: this.code,
-                    port
-                }).then(orderid => {
-                    if (orderid) { // 判断orderid是否存在
-                        this.selectPort = port
-                        this.orderid = orderid
-                        this.show = true
-                    }
-                })
-            }
-        },
         // 设置支付方式
         selectPayTypeBack (num) {
             this.selectPayTypeNum = num
@@ -159,15 +135,26 @@ export default {
         selectChargeTemp ({ id }) {
             this.selectTempId = id
         },
+        // 当扫描端口二维码时header中充电提示显示与否回调
+        openOrClose (flag) {
+            this.chargeTip = {
+                ...this.chargeTip,
+                defaultShow: false
+            }
+            this.show = !flag
+        },
+        closed () {
+            this.level = false
+            this.$refs.header.show = true
+        },
         async getInitData (data) {
             try {
                 const {
-                    code, message, portStatus, templatelist, servephone, areaname, brandname, tourtopupbalance,
-                    touristsendbalance, chargeInfo, payhint, ifmonth, defaultindex, packageMonth = {},
-                    deviceaid, merid
-                    } = await deviceCharge(data)
+                code, message, templatelist, servephone, areaname, brandname,
+                tourtopupbalance, touristsendbalance, chargeInfo, payhint, ifmonth, defaultindex, packageMonth = {},
+                deviceaid, merid
+                } = await deviceCharge(data)
                 if (code === 200) {
-                    this.portList = portStatus
                     this.templatelist = templatelist
                     this.serverPhone = servephone
                     this.areaname = areaname
@@ -177,8 +164,10 @@ export default {
                     this.aid = deviceaid
                     this.merid = merid
                     this.chargeTip = {
+                        ...this.chargeTip,
                         chargeInfo, // 收费标准
-                        payhint // 收费说明，下次不再提醒是否展示
+                        payhint, // 收费说明，下次不再提醒是否展示
+                        defaultShow: true
                     }
                     this.selectTempId = templatelist[defaultindex].id
                     // 设置支付方式
@@ -199,7 +188,7 @@ export default {
                 })
             }
         },
-        // 校验选择的信息是否正确
+        // 校验
         verifi () {
             const verifiList = [
                 {

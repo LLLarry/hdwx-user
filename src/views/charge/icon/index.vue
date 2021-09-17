@@ -54,11 +54,6 @@ export default {
         SelectPaytype,
         Header
     },
-    metaInfo () {
-        return {
-            title: this.title
-        }
-    },
     data () {
         return {
             selectPostIndex: -1, // 选择投币个数索引
@@ -70,7 +65,7 @@ export default {
             openid: '', // 用户唯一标识
             areaname: '', // 小区名
             tempList: [], // 模板；列表
-            title: '脉冲充电'
+            titleText: '脉冲充电'
         }
     },
     mounted () {
@@ -97,7 +92,7 @@ export default {
                     this.serverPhone = servephone
                     this.areaname = areaname
                     this.tempList = templateLists
-                    this.title = brandname
+                    this.titleText = brandname
                     this.selectPaytype.splice(1, 1, { title: '钱包支付', slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}` })
                 } else {
                     this.$dialog.alert({

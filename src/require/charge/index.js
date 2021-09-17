@@ -55,3 +55,45 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
         loadText
     })
 }
+
+/**
+ * 获取智慧款充电的加密信息
+ * @param {*} data
+ * @param {*} loadText
+ * @returns
+ */
+ export const chargepay = (data, loadText) => {
+    return ajax({
+        url: '/wxpay/chargepay',
+        params: data,
+        loadText
+    })
+}
+
+/**
+ * 智慧款设备钱包支付充电
+ * @param {*} data
+ * @param {*} loadText
+ * @returns
+ */
+ export const walletChargePay = (data, loadText) => {
+    return ajax({
+        url: '/general/WalletChargePay',
+        params: data,
+        loadText
+    })
+}
+
+/**
+ * 检查用户是否在当前设备当前端口进行充电
+ * @param {*} data
+ * @param {*} loadText
+ * @returns
+ */
+ export const checkUserIfCharge = (data, loadText) => {
+    return ajax({
+        url: '/allowInterface/checkUserIfCharge',
+        params: data,
+        loadText
+    })
+}

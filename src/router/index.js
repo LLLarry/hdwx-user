@@ -27,6 +27,11 @@ const routes = [
     path: '/wisdom',
     name: 'wisdom',
     component: () => import(/* webpackChunkName: "wisdom" */ '../views/charge/wisdom/index.vue')
+  },
+  {
+    path: '/wisdomport',
+    name: 'wisdom-port',
+    component: () => import(/* webpackChunkName: "wisdom-port" */ '../views/charge/wisdom-port/index.vue')
   }
 ]
 

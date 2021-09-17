@@ -15,7 +15,7 @@
                   <span class="text-truncate area-name">{{areaname}}</span>
               </div>
           </li>
-          <li class="w-100 text-size-md margin-bottom-2" v-if="chargeTip" @click="show = true">
+          <li class="w-100 text-size-md margin-bottom-2" v-if="chargeTip" @click="showTip">
               <div class="d-flex align-items-center text-666">
                   <i class="iconfont icon-ti-shi text-success text-size-lg"></i>
                   <span class="margin-left-1 text-success">收费说明</span>
@@ -35,9 +35,12 @@
         get-container="#charge-tip"
         v-model="show" position="bottom"
         :overlay-style="{transition: 'all .3s linear'}"
-        duration=".4"
+        :style="{'box-shadow' : `${isPort ? '0 -0.0533rem 0.32rem rgba(100, 101, 102, 0.24)' : 'none'}`}"
+        duration=".4s"
+        :overlay="!isPort"
         :safe-area-inset-bottom="true"
         v-if="chargeTip"
+        @closed="closed"
       >
           <div class="padding-y-3">
               <div>
@@ -61,7 +64,7 @@
                   </ul>
 
                   <div class="padding-x-3 margin-top-4">
-                      <van-button type="primary" block round @click="show = false">我知道了</van-button>
+                      <van-button type="primary" block round @click="knowBack">我知道了</van-button>
                   </div>
               </div>
           </div>
@@ -81,6 +84,10 @@ export default {
         serverPhone: {
             type: String
         },
+        isPort: { // 是否是扫端口页面
+            type: Boolean,
+            default: false
+        },
         chargeTip: {
             type: Object,
             default: () => null
@@ -92,8 +99,35 @@ export default {
             checked: false
         }
     },
+    watch: {
+        chargeTip: {
+            handler (value) {
+                // 监听 defaultShow，为true的时候弹出收费说明提示框
+                if (value && value.defaultShow) {
+                    this.show = true
+                }
+            },
+            deep: true,
+            immediate: true
+        }
+    },
     methods: {
-
+        showTip () {
+            // 扫设备二维码中使用header
+            if (!this.isPort) {
+                this.show = true
+            } else {
+                // 扫端口二维码中使用header, 当过渡完成时，调用父组件传过来的 openOrClose
+                this.$emit('openOrClose', true)
+            }
+        },
+        knowBack () {
+            this.show = false
+        },
+        // 扫端口二维码中使用header, 当过渡完成时, 调用父组件传过来的 openOrClose
+        closed () {
+            this.$emit('openOrClose', false)
+        }
     }
 }
 </script>

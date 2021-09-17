@@ -7,7 +7,8 @@
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        paddingTop: '40vh'
+        paddingTop: '40vh',
+        zIndex: 19999
       }"
     >
       <div class="hd-loading-content d-flex flex-column align-items-center padding-4 text-size-sm rounded-md">
