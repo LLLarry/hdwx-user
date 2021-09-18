@@ -73,6 +73,7 @@
 </template>
 
 <script>
+import { editAccountAloneData } from '@/require/charge'
 export default {
     props: {
         code: {
@@ -87,6 +88,9 @@ export default {
         isPort: { // 是否是扫端口页面
             type: Boolean,
             default: false
+        },
+        uid: {
+            type: [String, Number]
         },
         chargeTip: {
             type: Object,
@@ -122,6 +126,14 @@ export default {
             }
         },
         knowBack () {
+            if (this.checked) {
+                // 更改数据
+                editAccountAloneData({
+                    payhint: 2,
+                    sourcepath: 1,
+                    uid: this.uid
+                }, false)
+            }
             this.show = false
         },
         // 扫端口二维码中使用header, 当过渡完成时, 调用父组件传过来的 openOrClose

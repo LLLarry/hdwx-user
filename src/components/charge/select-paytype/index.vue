@@ -1,6 +1,6 @@
 <template>
-    <div class="select-paytype">
-        <hd-title class="text-000">请选择支付方式</hd-title>
+    <div class="select-paytype padding-bottom-2">
+        <hd-title class="text-000" style="margin-bottom: -5px">请选择支付方式</hd-title>
         <ul class="text-size-default">
             <li class="select-paytype-item padding-x-3" v-for="(item, index) in list" :key="index" @click="handleSelect(item)">
                 <!-- 无插槽的情况 -->

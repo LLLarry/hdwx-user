@@ -10,7 +10,7 @@
             <li class="margin-bottom-1"><p class="text-size-sm">充值余额：<span class="text-success font-weight-bold">&yen; {{ money | fmtMoney }}</span></p></li>
             <li class="margin-bottom-1"><p class="text-size-sm">赠送余额：<span class="text-success font-weight-bold">&yen; {{ sendmoney | fmtMoney }}</span></p></li>
         </ul>
-        <van-button type="info"  size="small" class="w-100 margin-top-2" :to="url ? url: undefined" replace>
+        <van-button type="info"  size="small" class="w-100 margin-top-2" @click="handleGoPath">
             <van-icon name="balance-o" size="16px"/>
             <span class="position-relative margin-left-1" style="top: -3px;">立即充值</span>
         </van-button>
@@ -40,6 +40,14 @@ export default {
     data () {
         return {
             show: false
+        }
+    },
+    methods: {
+        // 跳转到url中
+        handleGoPath () {
+            if (this.url) {
+                window.location.replace(this.url)
+            }
         }
     }
 }

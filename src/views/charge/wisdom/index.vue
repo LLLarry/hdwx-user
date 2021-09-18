@@ -1,7 +1,13 @@
 <template>
     <div class="wisdom">
         <!-- 顶部区域 -->
-        <Header :code="code" :areaname="areaname" :serverPhone="serverPhone" :chargeTip="chargeTip"></Header>
+        <Header
+            :code="code"
+            :areaname="areaname"
+            :serverPhone="serverPhone"
+            :chargeTip="chargeTip"
+            :uid="uid"
+        ></Header>
         <main class="padding-top-2">
             <select-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" />
         </main>
@@ -9,7 +15,7 @@
             v-model="show"
             position="bottom"
             duration=".4s"
-            :style="{ bottom: '2.133rem', maxHeight: '75vh'}"
+            :style="{ bottom: '2.133rem', maxHeight: 'calc(80vh - 2.133rem)'}"
             :overlay-style="{ height: 'calc(100% - 2.133rem)'}"
             @open="level = true"
             @closed="level = false"
@@ -34,6 +40,9 @@
                         ">（{{data.slot}}）</span>
                     </template>
                 </select-paytype>
+
+                <!-- 温馨提示 -->
+                <warm-tip :openid="openid" :aid="aid" :merid="merid" />
             </div>
         </van-popup>
         <!-- 底部区域 -->
@@ -53,11 +62,12 @@ import Footer from '@/components/charge/footer'
 import selectPort from '@/components/charge/select-port'
 import selectPortTip from '@/components/charge/select-port-tip'
 import selectTemp from '@/components/charge/select-temp'
+import warmTip from '@/components/charge/warm-tip'
 import chargeOverlay from '@/components/charge/charge-overlay'
 import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
 import { verification, fmtMoney } from '@/utils/util'
 import { deviceCharge, walletChargePay } from '@/require/charge'
-import { verifiUserIfCharge, wxPayFun } from '../helper.js'
+import { verifiUserIfCharge, wxPayFun, moneylyPayFun } from '../helper.js'
 export default {
     components: {
         Header,
@@ -66,7 +76,8 @@ export default {
         selectPaytype,
         selectTemp,
         selectPortTip,
-        chargeOverlay
+        chargeOverlay,
+        warmTip
     },
     data () {
         return {
@@ -82,6 +93,7 @@ export default {
             orderid: '', // 续充订单的订单id
             aid: '', // 设备所属小区id
             merid: '', // 设备所属商户id
+            uid: '', // 用户id
             tourtopupbalance: 0, // 充值金额
             touristsendbalance: 0, // 赠送金额
             portList: [
@@ -164,7 +176,7 @@ export default {
                 const {
                     code, message, portStatus, templatelist, servephone, areaname, brandname, tourtopupbalance,
                     touristsendbalance, chargeInfo, payhint, ifmonth, defaultindex, packageMonth = {},
-                    deviceaid, merid
+                    deviceaid, merid, touruid
                     } = await deviceCharge(data)
                 if (code === 200) {
                     this.portList = portStatus
@@ -176,9 +188,11 @@ export default {
                     this.touristsendbalance = touristsendbalance
                     this.aid = deviceaid
                     this.merid = merid
+                    this.uid = touruid
                     this.chargeTip = {
                         chargeInfo, // 收费标准
-                        payhint // 收费说明，下次不再提醒是否展示
+                        payhint, // 收费说明，下次不再提醒是否展示
+                        defaultShow: payhint === 1
                     }
                     this.selectTempId = templatelist[defaultindex].id
                     // 设置支付方式
@@ -224,7 +238,7 @@ export default {
             switch (this.selectPayTypeNum) {
                 case 1: this.wxPay(); break // 微信支付
                 case 2: this.walletPay(); break // 钱包支付
-                case 3: this.wxPay(); break // 包月支付
+                case 3: this.moneylyPay(); break // 包月支付
             }
         },
         // 微信支付
@@ -263,6 +277,14 @@ export default {
             } catch (e) {
                 this.toast('异常错误')
             }
+        },
+        // 包月充电
+        moneylyPay () {
+            moneylyPayFun({
+                port: this.selectPort,
+                openid: this.openid,
+                code: this.code
+            })
         }
     }
 }

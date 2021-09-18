@@ -35,6 +35,8 @@ const dialog = (type, message, title = '提示', beforeClose = (action, done) =>
         Vue.prototype.$dialog[type]({
             title,
             message,
+            overlayStyle: { zIndex: 20100 },
+            className: 'dialog-class',
             confirmButtonColor: '#07c160',
             beforeClose
         })

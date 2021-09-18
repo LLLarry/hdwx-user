@@ -97,3 +97,31 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
         loadText
     })
 }
+
+/**
+ * 智慧款设备：用户使用包月支付
+ * @param {*} data
+ * @param {*} loadText
+ * @returns
+ */
+ export const monthPayUse = (data, loadText) => {
+    return ajax({
+        url: '/general/allowMonthPayUse',
+        params: data,
+        loadText
+    })
+}
+
+/**
+ * 修改用户充电页面下次不再提醒接口
+ * @param {*} data
+ * @param {*} loadText
+ * @returns
+ */
+ export const editAccountAloneData = (data, loadText) => {
+    return ajax({
+        url: '/general/editAccountAloneData',
+        params: data,
+        loadText
+    })
+}

@@ -7,6 +7,7 @@
             :serverPhone="serverPhone"
             :chargeTip="chargeTip"
             :isPort="isPort"
+            :uid="uid"
             @openOrClose="openOrClose"
             ref="header"
         ></Header>
@@ -17,7 +18,7 @@
             position="bottom"
             duration=".4s"
             :overlay="false"
-            :style="{ bottom: '2.133rem', maxHeight: '75vh', 'box-shadow' : `${isPort ? '0 -0.0533rem 0.32rem rgba(100, 101, 102, 0.24)' : 'none'}`}"
+            :style="{ bottom: '2.133rem', maxHeight: 'calc(80vh - 2.133rem)', 'box-shadow' : `${isPort ? '0 -0.0533rem 0.32rem rgba(100, 101, 102, 0.24)' : 'none'}`}"
             :overlay-style="{ height: 'calc(100% - 2.133rem)'}"
             @open="level = true"
             @closed="closed"
@@ -42,6 +43,9 @@
                         ">（{{data.slot}}）</span>
                     </template>
                 </select-paytype>
+
+                <!-- 温馨提示 -->
+                <warm-tip :openid="openid" :aid="aid" :merid="merid" />
             </div>
         </van-popup>
         <!-- 底部区域 -->
@@ -60,11 +64,12 @@ import Header from '@/components/charge/header'
 import Footer from '@/components/charge/footer'
 import selectPortTip from '@/components/charge/select-port-tip'
 import selectTemp from '@/components/charge/select-temp'
+import warmTip from '@/components/charge/warm-tip'
 import chargeOverlay from '@/components/charge/charge-overlay'
 import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
 import { verification, fmtMoney } from '@/utils/util'
 import { deviceCharge, walletChargePay } from '@/require/charge'
-import { wxPayFun } from '../helper.js'
+import { wxPayFun, verifiUserIfCharge, moneylyPayFun } from '../helper.js'
 export default {
     components: {
         Header,
@@ -72,7 +77,8 @@ export default {
         selectPaytype,
         selectTemp,
         selectPortTip,
-        chargeOverlay
+        chargeOverlay,
+        warmTip
     },
     data () {
         return {
@@ -85,6 +91,7 @@ export default {
             orderid: '', // 续充订单的订单id
             aid: '', // 设备所属小区id
             merid: '', // 设备所属商户id
+            uid: '', // 用户id
             tourtopupbalance: 0, // 充值金额
             touristsendbalance: 0, // 赠送金额
             chargeTip: {
@@ -117,10 +124,10 @@ export default {
         }
     },
     mounted () {
-        const { code, openid, port } = this.$route.query
+        const { code, openid, port = -1 } = this.$route.query
         this.code = code
         this.openid = openid
-        this.selectPort = port
+        this.selectPort = Number(port)
         this.getInitData({
             code,
             openid
@@ -137,11 +144,15 @@ export default {
         },
         // 当扫描端口二维码时header中充电提示显示与否回调
         openOrClose (flag) {
-            this.chargeTip = {
-                ...this.chargeTip,
-                defaultShow: false
+            if (flag) { // 提示信息将要展示
+                if (!this.show) { // 判断当前控制菜单为隐藏状态
+                    this.closed() // 调用方法，降低footer层级和展示提示信息
+                } else { // 判断当前控制菜单为展示状态
+                    this.show = false // 改变控制菜单为隐藏状态，当隐藏完之后会调用closed函数
+                }
+            } else { // 提示信息将要关闭
+                this.show = true // 改变控制菜单为展示状态
             }
-            this.show = !flag
         },
         closed () {
             this.level = false
@@ -150,9 +161,9 @@ export default {
         async getInitData (data) {
             try {
                 const {
-                code, message, templatelist, servephone, areaname, brandname,
+                code, message, templatelist, servephone, areaname, brandname, portStatus = [],
                 tourtopupbalance, touristsendbalance, chargeInfo, payhint, ifmonth, defaultindex, packageMonth = {},
-                deviceaid, merid
+                deviceaid, merid, touruid
                 } = await deviceCharge(data)
                 if (code === 200) {
                     this.templatelist = templatelist
@@ -163,13 +174,18 @@ export default {
                     this.touristsendbalance = touristsendbalance
                     this.aid = deviceaid
                     this.merid = merid
+                    this.uid = touruid
+                    this.selectTempId = templatelist[defaultindex].id
                     this.chargeTip = {
                         ...this.chargeTip,
                         chargeInfo, // 收费标准
                         payhint, // 收费说明，下次不再提醒是否展示
-                        defaultShow: true
+                        defaultShow: payhint === 1
                     }
-                    this.selectTempId = templatelist[defaultindex].id
+                    // 加载完成就判断有没有下次不再加载信息，没有的话就直接展示控制栏
+                    if (payhint !== 1) {
+                        this.show = true
+                    }
                     // 设置支付方式
                     if (Number(ifmonth) === 1) {
                         const { surpnum = 0, todaysurpnum = 0 } = packageMonth
@@ -177,12 +193,16 @@ export default {
                     } else {
                         this.selectPaytype = ['微信支付', { title: '钱包支付', slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}` }]
                     }
+
+                    // 查询当前端口是否是可用端口
+                    this.checkPortStatus(portStatus)
                 } else {
                     this.alert(message).then(() => {
                         wx.closeWindow()
                     })
                 }
             } catch (error) {
+                console.log(error)
                 this.alert('异常错误').then(() => {
                     wx.closeWindow()
                 })
@@ -213,7 +233,7 @@ export default {
             switch (this.selectPayTypeNum) {
                 case 1: this.wxPay(); break // 微信支付
                 case 2: this.walletPay(); break // 钱包支付
-                case 3: this.wxPay(); break // 包月支付
+                case 3: this.moneylyPay(); break // 包月支付
             }
         },
         // 微信支付
@@ -222,7 +242,8 @@ export default {
                 tempid: this.selectTempId,
                 port: this.selectPort,
                 openid: this.openid,
-                code: this.code
+                code: this.code,
+                ifcontinue: this.orderid
             })
         },
         // 钱包支付
@@ -251,6 +272,46 @@ export default {
                 }
             } catch (e) {
                 this.toast('异常错误')
+            }
+        },
+        // 包月充电
+        moneylyPay () {
+            moneylyPayFun({
+                port: this.selectPort,
+                openid: this.openid,
+                code: this.code
+            })
+        },
+        checkPortStatus (portList) {
+            const portItem = portList.find(item => this.selectPort === Number(item.port))
+            if (portItem) {
+                const portStatus = Number(portItem.portStatus)
+                if (portStatus === 3 || portStatus === 4) { // 故障端口
+                    this.alert('此端口为故障端口，请更换端口使用').then(res => {
+                        wx.closeWindow()
+                    })
+                } else if (portStatus === 2) { // 使用端口
+                    // 检验当前使用端口能否作为本人续充端口使用
+                    verifiUserIfCharge({
+                        openid: this.openid,
+                        code: this.code,
+                        port: this.selectPort
+                    })
+                    .then(orderid => {
+                        if (orderid) { // 判断orderid是否存在
+                            this.orderid = orderid
+                        }
+                    }).catch(e => {
+                        // 当前端口不支持续充
+                       this.alert(e).then(() => {
+                           wx.closeWindow()
+                       })
+                    })
+                }
+            } else {
+                this.alert('未查询到端口状态').then(res => {
+                    wx.closeWindow()
+                })
             }
         }
     }

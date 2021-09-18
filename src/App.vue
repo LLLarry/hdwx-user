@@ -38,4 +38,8 @@ export default {
 #app {
   min-height: 100vh;
 }
+// 提示框层级
+.dialog-class {
+  z-index: 20200 !important;
+}
 </style>
