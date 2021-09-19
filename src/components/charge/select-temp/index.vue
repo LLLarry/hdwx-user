@@ -6,7 +6,7 @@
                 :class="{ active:  selectId === item.id}"
                 v-for="item in list"
                 :key="item.id"
-                @click="$emit('selectChargeTemp', item)"
+                @click="$emit('selectChargeTemp', { ...item, type })"
             >{{item.name}}</li>
         </ul>
     </div>
@@ -22,6 +22,9 @@ export default {
         selectId: { // 选中模板的id
             type: Number,
             default: -1
+        },
+        type: { // 模板类型 time 按时间充电模板， money 按金额充电模板， 不传默认类型模板
+            type: String
         }
     }
 }

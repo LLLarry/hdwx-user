@@ -17,7 +17,7 @@ import HdLine from '@/components/hd-line'
 import HdTitle from '@/components/hd-title'
 import loadingIndex from '@/components/hd-loading/loadingIndex'
 import VueMeta from 'vue-meta'
-import { Button, Icon, Dialog, Overlay, Loading, Toast, Popup, Switch } from 'vant'
+import { Button, Icon, Dialog, Overlay, Loading, Toast, Popup, Switch, Tab, Tabs } from 'vant'
 Vue.use(VueMeta, {
   // optional pluginOptions
   refreshOnceOnNavigation: true
@@ -32,6 +32,8 @@ Vue.use(Loading)
 Vue.use(Toast)
 Vue.use(Popup)
 Vue.use(Switch)
+Vue.use(Tab)
+Vue.use(Tabs)
 
 Vue.config.productionTip = false
 Vue.component('hd-line', HdLine)
