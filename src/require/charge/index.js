@@ -125,3 +125,17 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
         loadText
     })
 }
+
+/**
+ * 查询用户钱包列表
+ * @param {*} data
+ * @param {*} loadText
+ * @returns
+ */
+ export const accountwalletverify = (data, loadText) => {
+    return ajax({
+        url: '/general/accountwalletverify',
+        params: data,
+        loadText
+    })
+}

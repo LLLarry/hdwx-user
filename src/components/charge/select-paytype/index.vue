@@ -18,6 +18,7 @@
                     <i class="iconfont icon-peizhitubiaosvg- text-info left-icon" v-else-if="item.title === '包月支付'"></i>
                     <span class="margin-x-2">{{item.title}}</span>
                     <slot v-bind:data="item"></slot>
+                    <i :class="item.icon.className" v-if="item.icon" :style="item.icon.style || {}" @click.prevent.stop="(e) => { item.icon.onClick && item.icon.onClick(e) }"></i>
                     <van-icon v-show="paytypeMap[item.title] === select && select > 0" name="success" color="#28a745" size="25px" class="select-icon position-absolute" />
                 </div>
             </li>
