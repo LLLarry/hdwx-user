@@ -3,13 +3,15 @@ import loadingComponent from './index.vue'
 
 const LoadingConstructor = vue.extend(loadingComponent)
 
-let toastDom, el
+// let toastDom, el
+const toastDom = {}
+const el = {}
 
-function showLoading ({ title, type, duration = 2000 }) {
-  if (!el && !toastDom) {
-    el = document.createElement('div')
-    toastDom = new LoadingConstructor({
-      el,
+function showLoading ({ title, type, duration = 2000, key = 'key' }) {
+  if (!el[key] && !toastDom[key]) {
+    el[key] = document.createElement('div')
+    toastDom[key] = new LoadingConstructor({
+      el: el[key],
       data () {
         return {
           isShow: true, // 是否显示
@@ -18,15 +20,16 @@ function showLoading ({ title, type, duration = 2000 }) {
       }
     })
     // 添加节点
-    document.body.appendChild(toastDom.$el)
+    document.body.appendChild(toastDom[key].$el)
   } else {
-    toastDom.isShow = true
+    toastDom[key].title = title
+    toastDom[key].isShow = true
   }
 }
 
-function cancelLoading () {
-  if (toastDom) {
-    toastDom.isShow = false
+function cancelLoading (key = 'key') {
+  if (toastDom[key]) {
+    toastDom[key].isShow = false
   }
 }
 

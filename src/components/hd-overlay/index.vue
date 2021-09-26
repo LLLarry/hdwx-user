@@ -27,9 +27,6 @@ export default {
             type: String
         }
     },
-   created () {
-       console.log(this)
-   },
    methods: {
        handleClose (from) {
            if (this.bottomClose && from === 1) return false

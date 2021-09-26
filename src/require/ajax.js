@@ -1,6 +1,7 @@
 import axios from 'axios'
 import Qs from 'qs'
 import Vue from 'vue'
+import { getRamdom } from '@/utils/util'
 const { BASE_URL } = HDWX_USER
 // import { Dialog } from 'vant'
 // import store from '@/store'
@@ -43,11 +44,13 @@ server.interceptors.response.use(response => {
 })
 
 export default ({ method = 'get', url = '', params = {}, data = {}, loadText = '正在加载中' } = {}) => {
+    const random = getRamdom()
     if (method === 'get') {
         return new Promise((resolve, reject) => {
             if (loadText !== false) {
                 Vue.prototype.$showLoading({
-                    title: loadText
+                    title: loadText,
+                    key: random
                 })
             }
             server.get(url, { params })
@@ -61,7 +64,7 @@ export default ({ method = 'get', url = '', params = {}, data = {}, loadText = '
             })
             .finally(() => {
                 if (loadText !== false) {
-                    Vue.prototype.$cancelLoading()
+                    Vue.prototype.$cancelLoading(random)
                 }
             })
         })
@@ -69,7 +72,8 @@ export default ({ method = 'get', url = '', params = {}, data = {}, loadText = '
         return new Promise((resolve, reject) => {
             if (loadText !== false) {
                 Vue.prototype.$showLoading({
-                    title: loadText
+                    title: loadText,
+                    key: random
                 })
             }
             server.post(url, Qs.stringify(data))
@@ -83,7 +87,7 @@ export default ({ method = 'get', url = '', params = {}, data = {}, loadText = '
             })
             .finally(() => {
                 if (loadText !== false) {
-                    Vue.prototype.$cancelLoading()
+                    Vue.prototype.$cancelLoading(random)
                 }
             })
         })

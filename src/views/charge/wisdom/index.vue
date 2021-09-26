@@ -53,6 +53,8 @@
         <div id="charge-tip" />
         <!-- 钱包余额不足提示 -->
         <charge-overlay ref="chargeOverlay" :money="tourtopupbalance" :sendmoney="touristsendbalance" :url="walletRechargeUrl"></charge-overlay>
+        <!-- 用户钱包列表 -->
+        <wallet-list ref="walletList" />
     </div>
 </template>
 
@@ -65,6 +67,7 @@ import selectTemp from '@/components/charge/select-temp'
 import warmTip from '@/components/charge/warm-tip'
 import chargeOverlay from '@/components/charge/charge-overlay'
 import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
+import walletList from '@/components/charge/wallet-list'
 import { verification, fmtMoney } from '@/utils/util'
 import { deviceCharge, walletChargePay } from '@/require/charge'
 import { verifiUserIfCharge, wxPayFun, moneylyPayFun } from '../helper.js'
@@ -77,7 +80,8 @@ export default {
         selectTemp,
         selectPortTip,
         chargeOverlay,
-        warmTip
+        warmTip,
+        walletList
     },
     data () {
         return {
@@ -94,6 +98,8 @@ export default {
             aid: '', // 设备所属小区id
             merid: '', // 设备所属商户id
             uid: '', // 用户id
+            walletid: '', // 钱包id
+            touraid: '', // 用户所属小区id
             tourtopupbalance: 0, // 充值金额
             touristsendbalance: 0, // 赠送金额
             portList: [
@@ -176,7 +182,7 @@ export default {
                 const {
                     code, message, portStatus, templatelist, servephone, areaname, brandname, tourtopupbalance,
                     touristsendbalance, chargeInfo, payhint, ifmonth, defaultindex, packageMonth = {},
-                    deviceaid, merid, touruid
+                    deviceaid, merid, touruid, walletid, touraid
                     } = await deviceCharge(data)
                 if (code === 200) {
                     this.portList = portStatus
@@ -189,6 +195,8 @@ export default {
                     this.aid = deviceaid
                     this.merid = merid
                     this.uid = touruid
+                    this.walletid = walletid
+                    this.touraid = touraid
                     this.chargeTip = {
                         chargeInfo, // 收费标准
                         payhint, // 收费说明，下次不再提醒是否展示
@@ -198,9 +206,46 @@ export default {
                     // 设置支付方式
                     if (Number(ifmonth) === 1) {
                         const { surpnum = 0, todaysurpnum = 0 } = packageMonth
-                        this.selectPaytype = ['微信支付', { title: '钱包支付', slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}` }, { title: '包月支付', slot: `总剩余：${surpnum || 0}次， 今日剩余: ${todaysurpnum || 0}次` }]
+                        this.selectPaytype = ['微信支付',
+                            {
+                                title: '钱包支付',
+                                slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}`,
+                                icon: {
+                                    className: 'iconfont icon-ti-shi',
+                                    onClick: () => {
+                                        // 发送请求
+                                        this.$refs.walletList.getData({
+                                            uid: this.uid,
+                                            devaid: this.aid,
+                                            merid: this.merid,
+                                            aid: this.touraid,
+                                            walletid: this.walletid
+                                        })
+                                    }
+                                }
+                            },
+                            { title: '包月支付', slot: `总剩余：${surpnum || 0}次， 今日剩余: ${todaysurpnum || 0}次` }
+                        ]
                     } else {
-                        this.selectPaytype = ['微信支付', { title: '钱包支付', slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}` }]
+                        this.selectPaytype = ['微信支付',
+                            {
+                                title: '钱包支付',
+                                slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}`,
+                                icon: {
+                                    className: 'iconfont icon-ti-shi',
+                                    onClick: () => {
+                                        // 发送请求
+                                        this.$refs.walletList.getData({
+                                            uid: this.uid,
+                                            devaid: this.aid,
+                                            merid: this.merid,
+                                            aid: this.touraid,
+                                            walletid: this.walletid
+                                        })
+                                    }
+                                }
+                            }
+                        ]
                     }
                 } else {
                     this.alert(message).then(() => {

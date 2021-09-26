@@ -28,9 +28,24 @@
                 <div class="padding-y-3 padding-x-3">
                     <select-port-tip :selectPort="selectPort" />
                 </div>
-                <!-- 选择模板列表 -->
-                <div class="padding-x-3">
-                    <select-temp :list="templatelist" :selectId="selectTempId" @selectChargeTemp="selectChargeTemp" />
+                <van-tabs v-if="temporaryc === 1" v-model="chageType" type="card" color="#07c160" title-inactive-color="#666666">
+                    <van-tab :title-style="{ fontSize: '0.32rem' }">
+                        <template #title> 按时间付费 </template>
+                         <!-- 选择按时间付费模板列表 -->
+                        <div class="padding-x-3 margin-top-3">
+                            <select-temp :list="templateTimelist" :selectId="selectTimeTempId" type="time" @selectChargeTemp="selectChargeTemp" />
+                        </div>
+                    </van-tab>
+                    <van-tab :title-style="{ fontSize: '0.32rem' }">
+                        <template #title> 按金额付费<span style="font-size: 0.28rem;">（临时充电）</span> </template>
+                         <!-- 选择按金额付费模板列表 -->
+                        <div class="padding-x-3 margin-top-3">
+                            <select-temp :list="templateMoneylist" :selectId="selectMoneyTempId" type="money" @selectChargeTemp="selectChargeTemp" />
+                        </div>
+                    </van-tab>
+                </van-tabs>
+                <div class="padding-x-3" v-else>
+                    <select-temp :list="templateTimelist" :selectId="selectTimeTempId" type="time" @selectChargeTemp="selectChargeTemp" />
                 </div>
                 <hd-line />
                 <!-- 选择支付方式列表 -->
@@ -56,6 +71,8 @@
         <div id="charge-tip" />
         <!-- 钱包余额不足提示 -->
         <charge-overlay ref="chargeOverlay" :money="tourtopupbalance" :sendmoney="touristsendbalance" :url="walletRechargeUrl"></charge-overlay>
+        <!-- 用户钱包列表 -->
+        <wallet-list ref="walletList" />
     </div>
 </template>
 
@@ -67,7 +84,8 @@ import selectTemp from '@/components/charge/select-temp'
 import warmTip from '@/components/charge/warm-tip'
 import chargeOverlay from '@/components/charge/charge-overlay'
 import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
-import { verification, fmtMoney } from '@/utils/util'
+import walletList from '@/components/charge/wallet-list'
+import { verification, fmtMoney, getType } from '@/utils/util'
 import { deviceCharge, walletChargePay } from '@/require/charge'
 import { wxPayFun, verifiUserIfCharge, moneylyPayFun } from '../helper.js'
 export default {
@@ -78,11 +96,15 @@ export default {
         selectTemp,
         selectPortTip,
         chargeOverlay,
-        warmTip
+        warmTip,
+        walletList
     },
     data () {
         return {
             isPort: true, // 是否是扫端口页面
+            chageType: 0, // 充电类型： 0 按时间充电 1 按金额充电
+            // grade: 2, // 默认支付在那个选择上面： 1按 金额付费    2 按时间付费
+            temporaryc: 1, // 是否支持临时充电  1 支持临时充电
             code: '',
             openid: '',
             serverPhone: '',
@@ -92,6 +114,8 @@ export default {
             aid: '', // 设备所属小区id
             merid: '', // 设备所属商户id
             uid: '', // 用户id
+            touraid: '', // 用户所属小区id
+            walletid: '', // 钱包id
             tourtopupbalance: 0, // 充值金额
             touristsendbalance: 0, // 赠送金额
             chargeTip: {
@@ -101,8 +125,10 @@ export default {
             },
             selectPort: -1, // 选中的端口号
             show: false,
-            templatelist: [],
-            selectTempId: -1, // 选中充电模板id
+            templateTimelist: [], // 按照时间充电模板列表
+            templateMoneylist: [], // 按照金额充电模板列表
+            selectTimeTempId: -1, // 选中时间充电模板id
+            selectMoneyTempId: -1, // 选中按照金额充电模板id
             selectPaytype: ['微信支付', '钱包支付'/* , { title: '包月支付', slot: '123456' } */],
             selectPayTypeNum: paytypeMap['微信支付'], // 默认选中微信支付,
             level: false, // footer的层级
@@ -112,15 +138,27 @@ export default {
     computed: {
         // 充电支付提示
         chargePayTip () {
-            let money = 0
             if (this.selectPort < 0) {
                 return '请先选择充电端口'
-            } else if (this.templatelist.length <= 0 || this.selectTempId < 0) {
-                money = 0
             } else {
-                money = this.templatelist.find(({ id }) => id === this.selectTempId).money
+                if (this.chageType === 0) { // 按时间充电
+                    const item = this.templateTimelist.find(item => item.id === this.selectTimeTempId)
+                    if (item) {
+                        const time = parseFloat((item.chargeTime / 60).toFixed(2))
+                        return `充电时长: ${item.name === '充满自停' ? '充满自停' : `${time}小时`}`
+                    } else {
+                         return '充电时长: '
+                    }
+                } else { // 按金额充电
+                    const item = this.templateMoneylist.find(item => item.id === this.selectMoneyTempId)
+                    if (item) {
+                        const money = parseFloat(item.money)
+                        return `支付金额: ${money}元`
+                    } else {
+                         return '支付金额: '
+                    }
+                }
             }
-            return `支付金额：${fmtMoney(money)}元`
         }
     },
     mounted () {
@@ -133,14 +171,34 @@ export default {
             openid
         })
     },
+    watch: {
+        // 监听充电菜单的变化，更改支付方式的显示和默认选择
+        chageType (newVal, oldValue) {
+            if (newVal === oldValue) return
+            const walletItem = this.selectPaytype.find(item => {
+                return getType(item) === 'object' && item.title === '钱包支付'
+            })
+            if (newVal === 0) {
+                this.selectPaytype = [walletItem]
+                this.selectPayTypeNum = paytypeMap['钱包支付']
+            } else {
+               this.selectPaytype = ['微信支付', walletItem]
+               this.selectPayTypeNum = paytypeMap['微信支付']
+            }
+        }
+    },
     methods: {
         // 设置支付方式
         selectPayTypeBack (num) {
             this.selectPayTypeNum = num
         },
         // 设置选中的充电模板
-        selectChargeTemp ({ id }) {
-            this.selectTempId = id
+        selectChargeTemp ({ type, id }) {
+            if (type === 'time') {
+                this.selectTimeTempId = id
+            } else {
+                this.selectMoneyTempId = id
+            }
         },
         // 当扫描端口二维码时header中充电提示显示与否回调
         openOrClose (flag) {
@@ -161,12 +219,13 @@ export default {
         async getInitData (data) {
             try {
                 const {
-                code, message, templatelist, servephone, areaname, brandname, portStatus = [],
-                tourtopupbalance, touristsendbalance, chargeInfo, payhint, ifmonth, defaultindex, packageMonth = {},
-                deviceaid, merid, touruid
+                code, message, templateTimelist, templateMoneylist, servephone, areaname, brandname, portStatus = [],
+                tourtopupbalance, touristsendbalance, chargeInfo, payhint, defaultindex,
+                deviceaid, merid, touruid, grade, temporaryc, touraid, walletid
                 } = await deviceCharge(data)
                 if (code === 200) {
-                    this.templatelist = templatelist
+                    this.templateTimelist = templateTimelist
+                    this.templateMoneylist = templateMoneylist
                     this.serverPhone = servephone
                     this.areaname = areaname
                     this.titleText = brandname
@@ -175,7 +234,12 @@ export default {
                     this.aid = deviceaid
                     this.merid = merid
                     this.uid = touruid
-                    this.selectTempId = templatelist[defaultindex].id
+                    this.temporaryc = temporaryc
+                    this.touraid = touraid
+                    this.walletid = walletid
+                    if (grade === 1 && temporaryc === 1) { // grade 1按 金额付费    2 按时间付费; temporaryc 1 支持按金额付费
+                        this.chageType = 1 // 按时间充电
+                    }
                     this.chargeTip = {
                         ...this.chargeTip,
                         chargeInfo, // 收费标准
@@ -186,13 +250,27 @@ export default {
                     if (payhint !== 1) {
                         this.show = true
                     }
+                    this.selectTimeTempId = (templateTimelist[0] || { id: -1 }).id // 按时间充电默认选中第一个
+                    this.selectMoneyTempId = templateMoneylist[defaultindex].id // 按金额充电默认选中后台传过来的索引
                     // 设置支付方式
-                    if (Number(ifmonth) === 1) {
-                        const { surpnum = 0, todaysurpnum = 0 } = packageMonth
-                        this.selectPaytype = ['微信支付', { title: '钱包支付', slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}` }, { title: '包月支付', slot: `总剩余：${surpnum || 0}次， 今日剩余: ${todaysurpnum || 0}次` }]
-                    } else {
-                        this.selectPaytype = ['微信支付', { title: '钱包支付', slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}` }]
-                    }
+                    this.selectPaytype = ['微信支付',
+                    {
+                        title: '钱包支付',
+                        slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}`,
+                        icon: {
+                            className: 'iconfont icon-ti-shi',
+                            onClick: () => {
+                                // 发送请求
+                                this.$refs.walletList.getData({
+                                    uid: this.uid,
+                                    devaid: this.aid,
+                                    merid: this.merid,
+                                    aid: this.touraid,
+                                    walletid: this.walletid
+                                })
+                            }
+                        }
+                    }]
 
                     // 查询当前端口是否是可用端口
                     this.checkPortStatus(portStatus)
@@ -215,10 +293,19 @@ export default {
                     verifi: this.selectPort > 0,
                     content: '请先选择充电端口'
                 },
-                {
-                    verifi: this.selectTempId >= 0,
-                    content: '请先选择充电模板'
-                },
+                 (() => {
+                    if (this.chageType === 0) { // 按时间充电
+                        return {
+                                verifi: this.selectTimeTempId > 0,
+                                content: '请先选择充电模板'
+                            }
+                    } else {
+                        return {
+                            verifi: this.selectMoneyTempId > 0,
+                            content: '请先选择充电模板'
+                        }
+                    }
+                })(),
                 {
                     verifi: this.selectPayTypeNum > 0,
                     content: '请先选择支付方式'
@@ -239,18 +326,17 @@ export default {
         // 微信支付
         async wxPay () {
             wxPayFun({
-                tempid: this.selectTempId,
+                tempid: this.chageType === 0 ? this.selectTimeTempId : this.selectMoneyTempId,
                 port: this.selectPort,
                 openid: this.openid,
-                code: this.code,
-                ifcontinue: this.orderid
+                code: this.code
             })
         },
         // 钱包支付
         async walletPay () {
             try {
                 const { code, message, ordernum, devicenum, paymoney } = await walletChargePay({
-                    tempid: this.selectTempId,
+                    tempid: this.chageType === 0 ? this.selectTimeTempId : this.selectMoneyTempId,
                     port: this.selectPort,
                     openid: this.openid,
                     code: this.code,
@@ -263,7 +349,12 @@ export default {
                 } else if (code === 21005) { // 用户钱包余额不足
                     // 展示余额不足提示
                     // 获取充电模板name属性
-                    const tempname = this.templatelist.find(item => item.id === this.selectTempId).name
+                    let tempname = ''
+                    if (this.chageType === 0) {
+                        tempname = this.templateTimelist.find(item => item.id === this.selectTimeTempId).name
+                    } else {
+                        tempname = this.templateMoneylist.find(item => item.id === this.selectMoneyTempId).name
+                    }
                     // 生成钱包充值跳转路径
                     this.walletRechargeUrl = `/general/walletcharge?from=1&openid=${this.openid}&aid=${this.aid}&dealid=${this.merid}&deviceNum=${this.code}&port=${this.selectPort}&ctempid=${this.selectTempId}&tempname=${tempname}`
                     this.$refs.chargeOverlay.show = true

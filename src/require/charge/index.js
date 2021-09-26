@@ -139,3 +139,45 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
         loadText
     })
 }
+
+/**
+ * 查询离线充值机卡信息
+ * @param {*} data
+ * @param {*} loadText
+ * @returns
+ */
+ export const queryOfflineCard = (data, loadText) => {
+    return ajax({
+        url: '/allowInterface/queryOfflineCard',
+        params: data,
+        loadText
+    })
+}
+
+/**
+ * 查询离线充值机信息
+ * @param {*} data
+ * @param {*} loadText
+ * @returns
+ */
+ export const offlineCardCharge = (data, loadText) => {
+    return ajax({
+        url: '/allowInterface/offlineCardCharge',
+        params: data,
+        loadText
+    })
+}
+
+/**
+ * 查询离线充值机获取微信支付秘钥
+ * @param {*} data
+ * @param {*} loadText
+ * @returns
+ */
+ export const offlineCharge = (data, loadText) => {
+    return ajax({
+        url: '/wxpay/offlineCharge',
+        params: data,
+        loadText
+    })
+}

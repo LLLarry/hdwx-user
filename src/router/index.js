@@ -42,6 +42,11 @@ const routes = [
     path: '/wisdomv3port',
     name: 'wisdom-v3-port',
     component: () => import(/* webpackChunkName: "wisdom-v3-port" */ '../views/charge/wisdom-v3-port/index.vue')
+  },
+  {
+    path: '/offline',
+    name: 'offline-recharge',
+    component: () => import(/* webpackChunkName: "offline-recharge" */ '../views/charge/offline-recharge/index.vue')
   }
 ]
 

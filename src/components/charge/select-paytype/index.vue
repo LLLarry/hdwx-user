@@ -62,7 +62,6 @@ export default {
             } else {
                 num = paytypeMap[item]
             }
-            console.log(num)
             this.$emit('selectPayTypeBack', num)
         }
     }

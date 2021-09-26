@@ -7,12 +7,12 @@
         @closed="closed"
     >
         <van-tabs v-model="active">
-            <van-tab title="可用">
+            <van-tab :title="`可用（${successList.length}）`">
                 <div class="padding-3" :style="{ height: '75vh', 'overflow-y': 'auto'}">
                     <wallet-card v-for="item in successList" :key="`${item.uid}-${item.merid}-${item.walletid}`" :data="item" />
                 </div>
             </van-tab>
-            <van-tab title="不可用">
+            <van-tab :title="`不可用（${reasonList.length}）`">
                 <div class="padding-3" :style="{ height: '75vh', 'overflow-y': 'auto'}">
                     <wallet-card v-for="item in reasonList" :key="`${item.uid}-${item.merid}-${item.walletid}`" :data="item" reason />
                 </div>

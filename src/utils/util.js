@@ -47,3 +47,15 @@ export const verification = (list) => {
         return verifi
     })
 }
+
+/**
+ * 获取随机数
+ * @returns String
+ */
+ export const getRamdom = () => {
+    const r = Math.round(Math.random() * 255)
+    const g = Math.round(Math.random() * 255)
+    const b = Math.round(Math.random() * 255)
+    const color = r << 16 | g << 8 | b
+    return color.toString(16)
+}
