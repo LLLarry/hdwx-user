@@ -38,7 +38,7 @@
             block
             class="margin-top-4"
             @click="goCharge"
-        >开始充电</van-button>
+        >确认充值</van-button>
       </div>
 
     <!--
