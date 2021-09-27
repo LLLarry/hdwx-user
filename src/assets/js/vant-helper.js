@@ -3,10 +3,16 @@ import { getType } from '@/utils/util'
 /**
  * toast轻提示
  * @param {String} message 提示信息
- * @param {String} type 提示类型 '' | success | fial
+ * @param {String} type 提示类型 '' | success | fial | object
  * @param {Number} duration 持续时间 ms
  */
 export const toast = (message, type = '', duration = 1500) => {
+    if (message === '异常错误' && getType(type) === 'object') {
+        const { error, vm, line } = type
+        Vue.prototype.$error(error, vm, line) // 发送异常错误
+        type = ''
+    }
+
     if (getType(type) === 'number') {
         duration = type
         type = ''
@@ -59,6 +65,11 @@ const dialog = (type, message, title = '提示', beforeClose = (action, done) =>
  * @returns Promise 对象
  */
 export const alert = (message, title, beforeClose) => {
+    if (message === '异常错误' && getType(title) === 'object') {
+        const { error, vm, line } = title
+        Vue.prototype.$error(error, vm, line) // 发送异常错误
+        title = '提示'
+    }
     return dialog('alert', message, title, beforeClose)
 }
 

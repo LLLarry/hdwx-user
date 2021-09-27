@@ -104,14 +104,9 @@ export default {
                         }
                     })
                 }
-            } catch (e) {
-                this.$dialog.alert({
-                    title: '提示',
-                    message: '异常错误',
-                    beforeClose: (action, done) => {
-                        done()
-                        wx.closeWindow()
-                    }
+            } catch (error) {
+                this.alert('异常错误', { error, vm: this, line: 108 }).then(() => {
+                    wx.closeWindow()
                 })
             }
         },
@@ -189,14 +184,8 @@ export default {
                         }
                     })
                 }
-            } catch {
-                this.$dialog.alert({
-                    title: '提示',
-                    message: '异常错误',
-                    beforeClose: (action, done) => {
-                        done()
-                    }
-                })
+            } catch (error) {
+                this.alert('异常错误', { error, vm: this, line: 188 })
             }
         }
     }

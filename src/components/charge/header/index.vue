@@ -5,7 +5,8 @@
               <div class="d-flex align-items-center text-000">
                   <i class="iconfont icon-diannao text-success text-size-lg"></i>
                   <span class="margin-left-1"></span>
-                  <span>{{code}}</span>
+                  <span v-if="addrnum">{{code}} - {{addrnum}}</span>
+                  <span v-else>{{code}}</span>
               </div>
           </li>
           <li class="w-50 margin-bottom-2" v-if="areaname">
@@ -77,6 +78,9 @@ import { editAccountAloneData } from '@/require/charge'
 export default {
     props: {
         code: {
+            type: String
+        },
+        addrnum: {
             type: String
         },
         areaname: {

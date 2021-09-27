@@ -6,7 +6,7 @@ import '@/utils/global'
 // 封装vant的辅助函数
 import '@/assets/js/vant-helper'
 // 封装异常捕获辅助函数
-// import '@/assets/js/error-helper'
+import '@/assets/js/error-helper'
 // 引入全局过滤器
 import '@/filter'
 import Vue from 'vue'

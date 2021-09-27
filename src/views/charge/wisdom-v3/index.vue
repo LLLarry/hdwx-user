@@ -3,6 +3,7 @@
         <!-- 顶部区域 -->
         <Header
             :code="code"
+            :addrnum="addrnum"
             :areaname="areaname"
             :serverPhone="serverPhone"
             :chargeTip="chargeTip"
@@ -10,6 +11,11 @@
         ></Header>
         <main class="padding-top-2">
             <select-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" />
+
+            <div class="position-absolute reload-box d-flex align-items-center justify-content-center text-size-md" v-if="addrnum">
+                <span>如端口状态与实际不符，请点击</span>
+                <van-icon name="replay" class="reload-port margin-left-1 text-success" size=".5rem" @click="updatePortStatus" />
+            </div>
         </main>
         <van-popup
             v-model="show"
@@ -58,6 +64,13 @@
 
                 <!-- 温馨提示 -->
                 <warm-tip :openid="openid" :aid="aid" :merid="merid" />
+
+                <div class="padding-x-3 margin-top-2 text-success text-size-sm" v-show="chageType === 0" style="line-height: 1.5">
+                    提示：“按时间收费”模式为先充电后付费，仅支持预充钱包支付。如需充值钱包，请点击上方充值按钮进行充值！
+                </div>
+                <div class="padding-x-3 margin-top-2 text-success text-size-sm" v-show="chageType === 1" style="line-height: 1.5">
+                    提示：机器屏幕上显示时间为小功率电动车充电时间，实际充电时间会根据电动车功率大小相应缩短并提前结束充电！
+                </div>
             </div>
         </van-popup>
         <!-- 底部区域 -->
@@ -84,7 +97,7 @@ import chargeOverlay from '@/components/charge/charge-overlay'
 import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
 import walletList from '@/components/charge/wallet-list'
 import { verification, fmtMoney, getType } from '@/utils/util'
-import { deviceCharge, walletChargePay } from '@/require/charge'
+import { deviceCharge, walletChargePay, queryAddrAllPortStatus } from '@/require/charge'
 import { verifiUserIfCharge, wxPayFun, moneylyPayFun } from '../helper.js'
 export default {
     components: {
@@ -104,6 +117,7 @@ export default {
             // grade: 2, // 默认支付在那个选择上面： 1按 金额付费    2 按时间付费
             temporaryc: 1, // 是否支持临时充电  1 支持临时充电
             code: '',
+            addrnum: '',
             openid: '',
             serverPhone: '',
             areaname: '',
@@ -121,16 +135,7 @@ export default {
             tourtopupbalance: 0, // 充值金额
             touristsendbalance: 0, // 赠送金额
             portList: [
-                { port: 1, portStatus: 1 },
-                { port: 2, portStatus: 1 },
-                { port: 3, portStatus: 1 },
-                { port: 4, portStatus: 1 },
-                { port: 5, portStatus: 1 },
-                { port: 6, portStatus: 1 },
-                { port: 7, portStatus: 1 },
-                { port: 8, portStatus: 1 },
-                { port: 9, portStatus: 1 },
-                { port: 10, portStatus: 1 }
+                // { port: 1, portStatus: 1 }
             ],
             selectPort: -1, // 选中的端口号
             show: false,
@@ -141,7 +146,8 @@ export default {
             selectPaytype: ['微信支付', '钱包支付'/* , { title: '包月支付', slot: '123456' } */],
             selectPayTypeNum: paytypeMap['微信支付'], // 默认选中微信支付,
             level: false, // footer的层级
-            walletRechargeUrl: '' // 钱包充值跳转路径
+            walletRechargeUrl: '', // 钱包充值跳转路径
+            nowtime: '' // 访问当前时间时间戳
         }
     },
     computed: {
@@ -171,28 +177,34 @@ export default {
         }
     },
     mounted () {
-        const { code, openid } = this.$route.query
+        const { code, openid, addrnum } = this.$route.query
         this.code = code
         this.openid = openid
+        this.addrnum = addrnum
         this.getInitData({
             code,
-            openid
+            openid,
+            addrnum
         })
     },
     watch: {
         // 监听充电菜单的变化，更改支付方式的显示和默认选择
-        chageType (newVal, oldValue) {
-            if (newVal === oldValue) return
-            const walletItem = this.selectPaytype.find(item => {
-                return getType(item) === 'object' && item.title === '钱包支付'
-            })
-            if (newVal === 0) {
-                this.selectPaytype = [walletItem]
-                this.selectPayTypeNum = paytypeMap['钱包支付']
-            } else {
-               this.selectPaytype = ['微信支付', walletItem]
-               this.selectPayTypeNum = paytypeMap['微信支付']
-            }
+        chageType: {
+                handler (newVal, oldValue) {
+                if (newVal === oldValue) return
+                const walletItem = this.selectPaytype.find(item => {
+                    return (getType(item) === 'object' && item.title === '钱包支付') || (item === '钱包支付')
+                })
+                if (newVal === 0) {
+                    this.selectPaytype = [walletItem]
+                    // this.selectPayTypeNum = paytypeMap['钱包支付']
+                } else {
+                    this.selectPaytype = ['微信支付', walletItem]
+                    // this.selectPayTypeNum = paytypeMap['微信支付']
+                }
+                this.selectWalletByBalance()
+            },
+            immediate: true
         }
     },
     methods: {
@@ -234,7 +246,7 @@ export default {
                 const {
                     code, message, portStatus, templateTimelist, templateMoneylist, servephone, areaname, brandname, tourtopupbalance,
                     touristsendbalance, chargeInfo, payhint, defaultindex,
-                    deviceaid, merid, touruid, grade, temporaryc, touraid, walletid
+                    deviceaid, merid, touruid, grade, temporaryc, touraid, walletid, nowtime
                     } = await deviceCharge(data)
                 if (code === 200) {
                     this.portList = portStatus || []
@@ -251,6 +263,7 @@ export default {
                     this.temporaryc = temporaryc
                     this.touraid = touraid
                     this.walletid = walletid
+                    this.nowtime = nowtime
                     // this.grade = grade
                     if (grade === 1 && temporaryc === 1) { // grade 1按 金额付费    2 按时间付费; temporaryc 1 支持按金额付费
                         this.chageType = 1 // 按时间充电
@@ -262,9 +275,8 @@ export default {
                     }
                     this.selectTimeTempId = (templateTimelist[0] || { id: -1 }).id // 按时间充电默认选中第一个
                     this.selectMoneyTempId = templateMoneylist[defaultindex].id // 按金额充电默认选中后台传过来的索引
-                    // 设置支付方式
-                    this.selectPaytype = ['微信支付',
-                    {
+                    // 设置支付方式 找到旧的钱包索引，拿新的替换旧的
+                    const walletItem = {
                         title: '钱包支付',
                         slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}`,
                         icon: {
@@ -280,7 +292,12 @@ export default {
                                 })
                             }
                         }
-                    }]
+                    }
+                    const walletItemIndex = this.selectPaytype.findIndex(item => (item === '钱包支付' || item.title === '钱包支付'))
+                    if (walletItemIndex !== -1) {
+                        this.selectPaytype.splice(walletItemIndex, 1, walletItem)
+                    }
+                    this.selectWalletByBalance()
                 } else {
                     this.alert(message).then(() => {
                         wx.closeWindow()
@@ -288,7 +305,7 @@ export default {
                 }
             } catch (error) {
                 console.log(error)
-                this.alert('异常错误').then(() => {
+                this.alert('异常错误', { error, vm: this, line: 290 }).then(() => {
                     wx.closeWindow()
                 })
             }
@@ -336,7 +353,8 @@ export default {
                 tempid: this.chageType === 0 ? this.selectTimeTempId : this.selectMoneyTempId,
                 port: this.selectPort,
                 openid: this.openid,
-                code: this.code
+                code: this.code,
+                addrnum: this.addrnum
             })
         },
         // 钱包支付
@@ -347,7 +365,8 @@ export default {
                     port: this.selectPort,
                     openid: this.openid,
                     code: this.code,
-                    ifcontinue: this.orderid
+                    ifcontinue: this.orderid,
+                    addrnum: this.addrnum
                 })
                 if (code === 200) {
                     this.alert('支付成功').then(() => {
@@ -368,8 +387,8 @@ export default {
                 } else {
                     this.toast(message)
                 }
-            } catch (e) {
-                this.toast('异常错误')
+            } catch (error) {
+                this.toast('异常错误', { error, vm: this, line: 371 })
             }
         },
         // 包月充电
@@ -379,6 +398,40 @@ export default {
                 openid: this.openid,
                 code: this.code
             })
+        },
+        // 更新端口状态
+        async updatePortStatus () {
+           try {
+                const { code, message, portlist } = await queryAddrAllPortStatus({
+                    code: this.code,
+                    addr: this.addrnum,
+                    nowtime: this.nowtime
+                })
+                if (code === 200) {
+                    this.portList = this.portList.map(item => {
+                        item.portStatus = portlist[item.port]
+                        return item
+                    })
+                    this.$toast('更新成功')
+                } else {
+                    this.$toast(message)
+                }
+           } catch (error) {
+               this.toast('异常错误', { error, vm: this, line: 409 })
+           }
+        },
+        // 判断钱包余额，如果大于指定值，则默认选中钱包
+        selectWalletByBalance () {
+            const balance = this.touristsendbalance + this.tourtopupbalance
+            if (this.chageType === 0) {
+                this.selectPayTypeNum = paytypeMap['钱包支付']
+            } else {
+                if (balance >= 2) {
+                    this.selectPayTypeNum = paytypeMap['钱包支付']
+                } else {
+                    this.selectPayTypeNum = paytypeMap['微信支付']
+                }
+            }
         }
     }
 }
@@ -387,5 +440,14 @@ export default {
 <style lang="scss">
 .wisdom {
     padding-top: 115px;
+    main {
+        height: calc(100vh - 205px);
+        position: relative;
+        .reload-box {
+            bottom: 15px;
+            left: 0;
+            right: 0;
+        }
+    }
 }
 </style>

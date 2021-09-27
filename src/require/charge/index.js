@@ -181,3 +181,18 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
         loadText
     })
 }
+
+/**
+ * 更新一拖二设备端口状态
+ * @param {*} data
+ * @param {*} loadText
+ * @returns
+ */
+ export const queryAddrAllPortStatus = (data, loadText) => {
+    return ajax({
+        url: '/wolfNewSendData/queryAddrAllPortStatus',
+        data,
+        method: 'post',
+        loadText
+    })
+}

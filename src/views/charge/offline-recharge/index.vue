@@ -116,9 +116,9 @@ export default {
                         wx.closeWindow()
                     })
                 }
-            } catch (e) {
-                this.alert('异常错误').then(() => {
-                        wx.closeWindow()
+            } catch (error) {
+                this.alert('异常错误', { error, vm: this, line: 120 }).then(() => {
+                    wx.closeWindow()
                 })
             }
         },
@@ -134,9 +134,9 @@ export default {
                         wx.closeWindow()
                     })
                 }
-            } catch (e) {
-                this.alert('异常错误').then(() => {
-                        wx.closeWindow()
+            } catch (error) {
+                this.alert('异常错误', { error, vm: this, line: 138 }).then(() => {
+                    wx.closeWindow()
                 })
             }
         },

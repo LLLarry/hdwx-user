@@ -8,12 +8,12 @@
     >
         <van-tabs v-model="active">
             <van-tab :title="`可用（${successList.length}）`">
-                <div class="padding-3" :style="{ height: '75vh', 'overflow-y': 'auto'}">
+                <div class="padding-3" :style="{ height: 'calc(75vh - 2.133333rem)', 'overflow-y': 'auto', 'padding-bottom': '2.133333rem'}">
                     <wallet-card v-for="item in successList" :key="`${item.uid}-${item.merid}-${item.walletid}`" :data="item" />
                 </div>
             </van-tab>
             <van-tab :title="`不可用（${reasonList.length}）`">
-                <div class="padding-3" :style="{ height: '75vh', 'overflow-y': 'auto'}">
+                <div class="padding-3" :style="{ height: 'calc(75vh - 2.133333rem)', 'overflow-y': 'auto', 'padding-bottom': '2.133333rem'}">
                     <wallet-card v-for="item in reasonList" :key="`${item.uid}-${item.merid}-${item.walletid}`" :data="item" reason />
                 </div>
             </van-tab>

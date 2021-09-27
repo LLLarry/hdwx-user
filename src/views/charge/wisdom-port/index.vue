@@ -109,6 +109,7 @@ export default {
             show: false,
             templatelist: [],
             selectTempId: -1, // 选中充电模板id
+            ifwallet: 2, // 1 强制钱包支付 （不支持微信）
             selectPaytype: ['微信支付', '钱包支付'/* , { title: '包月支付', slot: '123456' } */],
             selectPayTypeNum: paytypeMap['微信支付'], // 默认选中微信支付,
             level: false, // footer的层级
@@ -169,7 +170,7 @@ export default {
                 const {
                 code, message, templatelist, servephone, areaname, brandname, portStatus = [],
                 tourtopupbalance, touristsendbalance, chargeInfo, payhint, ifmonth, defaultindex, packageMonth = {},
-                deviceaid, merid, touruid, walletid, touraid
+                deviceaid, merid, touruid, walletid, touraid, ifwallet
                 } = await deviceCharge(data)
                 if (code === 200) {
                     this.templatelist = templatelist
@@ -184,6 +185,7 @@ export default {
                     this.walletid = walletid
                     this.touraid = touraid
                     this.selectTempId = templatelist[defaultindex].id
+                    this.ifwallet = ifwallet
                     this.chargeTip = {
                         ...this.chargeTip,
                         chargeInfo, // 收费标准
@@ -195,9 +197,11 @@ export default {
                         this.show = true
                     }
                     // 设置支付方式
+                   const initPayType = ifwallet === 1 ? [] : ['微信支付']
+                   this.selectPayTypeNum = ifwallet === 1 ? paytypeMap['钱包支付'] : (tourtopupbalance + touristsendbalance >= 2) ? paytypeMap['钱包支付'] : paytypeMap['微信支付']
                    if (Number(ifmonth) === 1) {
                         const { surpnum = 0, todaysurpnum = 0 } = packageMonth
-                        this.selectPaytype = ['微信支付',
+                        this.selectPaytype = [...initPayType,
                             {
                                 title: '钱包支付',
                                 slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}`,
@@ -218,7 +222,7 @@ export default {
                             { title: '包月支付', slot: `总剩余：${surpnum || 0}次， 今日剩余: ${todaysurpnum || 0}次` }
                         ]
                     } else {
-                        this.selectPaytype = ['微信支付',
+                        this.selectPaytype = [...initPayType,
                             {
                                 title: '钱包支付',
                                 slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}`,
@@ -248,7 +252,7 @@ export default {
                 }
             } catch (error) {
                 console.log(error)
-                this.alert('异常错误').then(() => {
+                this.alert('异常错误', { error, vm: this, line: 251 }).then(() => {
                     wx.closeWindow()
                 })
             }
@@ -315,8 +319,8 @@ export default {
                 } else {
                     this.toast(message)
                 }
-            } catch (e) {
-                this.toast('异常错误')
+            } catch (error) {
+                this.toast('异常错误', { error, vm: this, line: 319 })
             }
         },
         // 包月充电

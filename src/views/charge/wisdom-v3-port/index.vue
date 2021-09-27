@@ -173,18 +173,22 @@ export default {
     },
     watch: {
         // 监听充电菜单的变化，更改支付方式的显示和默认选择
-        chageType (newVal, oldValue) {
-            if (newVal === oldValue) return
-            const walletItem = this.selectPaytype.find(item => {
-                return getType(item) === 'object' && item.title === '钱包支付'
-            })
-            if (newVal === 0) {
-                this.selectPaytype = [walletItem]
-                this.selectPayTypeNum = paytypeMap['钱包支付']
-            } else {
-               this.selectPaytype = ['微信支付', walletItem]
-               this.selectPayTypeNum = paytypeMap['微信支付']
-            }
+        chageType: {
+                handler (newVal, oldValue) {
+                if (newVal === oldValue) return
+                const walletItem = this.selectPaytype.find(item => {
+                    return (getType(item) === 'object' && item.title === '钱包支付') || (item === '钱包支付')
+                })
+                if (newVal === 0) {
+                    this.selectPaytype = [walletItem]
+                    // this.selectPayTypeNum = paytypeMap['钱包支付']
+                } else {
+                    this.selectPaytype = ['微信支付', walletItem]
+                    // this.selectPayTypeNum = paytypeMap['微信支付']
+                }
+                this.selectWalletByBalance()
+            },
+            immediate: true
         }
     },
     methods: {
@@ -253,8 +257,8 @@ export default {
                     this.selectTimeTempId = (templateTimelist[0] || { id: -1 }).id // 按时间充电默认选中第一个
                     this.selectMoneyTempId = templateMoneylist[defaultindex].id // 按金额充电默认选中后台传过来的索引
                     // 设置支付方式
-                    this.selectPaytype = ['微信支付',
-                    {
+                    // 设置支付方式 找到旧的钱包索引，拿新的替换旧的
+                    const walletItem = {
                         title: '钱包支付',
                         slot: `充值：${fmtMoney(tourtopupbalance)} ， 赠送：${fmtMoney(touristsendbalance)}`,
                         icon: {
@@ -270,8 +274,12 @@ export default {
                                 })
                             }
                         }
-                    }]
-
+                    }
+                    const walletItemIndex = this.selectPaytype.findIndex(item => (item === '钱包支付' || item.title === '钱包支付'))
+                    if (walletItemIndex !== -1) {
+                        this.selectPaytype.splice(walletItemIndex, 1, walletItem)
+                    }
+                    this.selectWalletByBalance()
                     // 查询当前端口是否是可用端口
                     this.checkPortStatus(portStatus)
                 } else {
@@ -281,7 +289,7 @@ export default {
                 }
             } catch (error) {
                 console.log(error)
-                this.alert('异常错误').then(() => {
+                this.alert('异常错误', { error, vm: this, line: 284 }).then(() => {
                     wx.closeWindow()
                 })
             }
@@ -361,8 +369,8 @@ export default {
                 } else {
                     this.toast(message)
                 }
-            } catch (e) {
-                this.toast('异常错误')
+            } catch (error) {
+                this.toast('异常错误', { error, vm: this, line: 365 })
             }
         },
         // 包月充电
@@ -403,6 +411,19 @@ export default {
                 this.alert('未查询到端口状态').then(res => {
                     wx.closeWindow()
                 })
+            }
+        },
+        // 判断钱包余额，如果大于指定值，则默认选中钱包
+        selectWalletByBalance () {
+            const balance = this.touristsendbalance + this.tourtopupbalance
+            if (this.chageType === 0) {
+                this.selectPayTypeNum = paytypeMap['钱包支付']
+            } else {
+                if (balance >= 2) {
+                    this.selectPayTypeNum = paytypeMap['钱包支付']
+                } else {
+                    this.selectPayTypeNum = paytypeMap['微信支付']
+                }
             }
         }
     }
