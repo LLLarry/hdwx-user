@@ -182,7 +182,7 @@ export default {
             try {
                 const {
                     code, message, portStatus, templatelist, servephone, areaname, brandname, tourtopupbalance,
-                    touristsendbalance, chargeInfo, payhint, ifmonth, defaultindex, packageMonth = {},
+                    touristsendbalance, chargeInfo, payhint, ifmonth, defaultindex = 0, packageMonth = {},
                     deviceaid, merid, touruid, walletid, touraid, ifwallet
                     } = await deviceCharge(data)
                 if (code === 200) {
@@ -204,7 +204,7 @@ export default {
                         payhint, // 收费说明，下次不再提醒是否展示
                         defaultShow: payhint === 1
                     }
-                    this.selectTempId = templatelist[defaultindex].id
+                    this.selectTempId = templatelist[defaultindex || 0]?.id
                     // 设置支持的支付方式
                     const initPayType = ifwallet === 1 ? [] : ['微信支付']
                     // 设置默认选择的支付方式
@@ -325,7 +325,7 @@ export default {
                     this.toast(message)
                 }
             } catch (error) {
-                this.toast('异常错误', { error, vm: this, line: 323 })
+                this.toast('异常错误', { error, vm: this, line: 328 })
             }
         },
         // 包月充电

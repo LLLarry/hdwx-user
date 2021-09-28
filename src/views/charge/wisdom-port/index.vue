@@ -169,7 +169,7 @@ export default {
             try {
                 const {
                 code, message, templatelist, servephone, areaname, brandname, portStatus = [],
-                tourtopupbalance, touristsendbalance, chargeInfo, payhint, ifmonth, defaultindex, packageMonth = {},
+                tourtopupbalance, touristsendbalance, chargeInfo, payhint, ifmonth, defaultindex = 0, packageMonth = {},
                 deviceaid, merid, touruid, walletid, touraid, ifwallet
                 } = await deviceCharge(data)
                 if (code === 200) {
@@ -184,7 +184,7 @@ export default {
                     this.uid = touruid
                     this.walletid = walletid
                     this.touraid = touraid
-                    this.selectTempId = templatelist[defaultindex].id
+                    this.selectTempId = templatelist[defaultindex || 0]?.id
                     this.ifwallet = ifwallet
                     this.chargeTip = {
                         ...this.chargeTip,

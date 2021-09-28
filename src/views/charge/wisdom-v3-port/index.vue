@@ -61,6 +61,13 @@
 
                 <!-- 温馨提示 -->
                 <warm-tip :openid="openid" :aid="aid" :merid="merid" />
+
+                <div class="padding-x-3 margin-top-2 text-success text-size-sm" v-show="chageType === 0" style="line-height: 1.5">
+                    提示：“按时间收费”模式为先充电后付费，仅支持预充钱包支付。如需充值钱包，请点击上方充值按钮进行充值！
+                </div>
+                <div class="padding-x-3 margin-top-2 text-success text-size-sm" v-show="chageType === 1" style="line-height: 1.5">
+                    提示：机器屏幕上显示时间为小功率电动车充电时间，实际充电时间会根据电动车功率大小相应缩短并提前结束充电！
+                </div>
             </div>
         </van-popup>
         <!-- 底部区域 -->
@@ -224,7 +231,7 @@ export default {
             try {
                 const {
                 code, message, templateTimelist, templateMoneylist, servephone, areaname, brandname, portStatus = [],
-                tourtopupbalance, touristsendbalance, chargeInfo, payhint, defaultindex,
+                tourtopupbalance, touristsendbalance, chargeInfo, payhint, defaultindex = 0,
                 deviceaid, merid, touruid, grade, temporaryc, touraid, walletid
                 } = await deviceCharge(data)
                 if (code === 200) {
@@ -255,7 +262,7 @@ export default {
                         this.show = true
                     }
                     this.selectTimeTempId = (templateTimelist[0] || { id: -1 }).id // 按时间充电默认选中第一个
-                    this.selectMoneyTempId = templateMoneylist[defaultindex].id // 按金额充电默认选中后台传过来的索引
+                    this.selectMoneyTempId = templateMoneylist[defaultindex || 0]?.id // 按金额充电默认选中后台传过来的索引
                     // 设置支付方式
                     // 设置支付方式 找到旧的钱包索引，拿新的替换旧的
                     const walletItem = {

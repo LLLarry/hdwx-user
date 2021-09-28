@@ -245,7 +245,7 @@ export default {
             try {
                 const {
                     code, message, portStatus, templateTimelist, templateMoneylist, servephone, areaname, brandname, tourtopupbalance,
-                    touristsendbalance, chargeInfo, payhint, defaultindex,
+                    touristsendbalance, chargeInfo, payhint, defaultindex = 0,
                     deviceaid, merid, touruid, grade, temporaryc, touraid, walletid, nowtime
                     } = await deviceCharge(data)
                 if (code === 200) {
@@ -274,7 +274,7 @@ export default {
                         defaultShow: payhint === 1
                     }
                     this.selectTimeTempId = (templateTimelist[0] || { id: -1 }).id // 按时间充电默认选中第一个
-                    this.selectMoneyTempId = templateMoneylist[defaultindex].id // 按金额充电默认选中后台传过来的索引
+                    this.selectMoneyTempId = templateMoneylist[defaultindex || 0]?.id // 按金额充电默认选中后台传过来的索引
                     // 设置支付方式 找到旧的钱包索引，拿新的替换旧的
                     const walletItem = {
                         title: '钱包支付',
@@ -304,7 +304,6 @@ export default {
                     })
                 }
             } catch (error) {
-                console.log(error)
                 this.alert('异常错误', { error, vm: this, line: 290 }).then(() => {
                     wx.closeWindow()
                 })
