@@ -12,12 +12,12 @@
         <ul class="port-list d-flex flex-wrap padding-x-3 padding-y-4" v-if="list !== null && list.length > 0">
             <li
                 class="port position-relative"
-                :class="[item.port == selectPort ? 'active' : item.portStatus == 2 ? 'use' : (item.portStatus == 3 || item.portStatus == 4) ? 'fi' : '']"
+                :class="[(item && (item.port == selectPort)) ? 'active' : item.portStatus == 2 ? 'use' : (item.portStatus == 3 || item.portStatus == 4) ? 'fi' : '']"
                 v-for="item in list"
                 :key="item.port"
                 @click="handleSelectPort(item)"
             >
-                <div class="position-absolute port-content d-flex justify-content-center align-items-center text-success">{{item.port}}号</div>
+                <div class="position-absolute port-content d-flex justify-content-center align-items-center text-success">{{item && item.port}}号</div>
             </li>
         </ul>
     </div>

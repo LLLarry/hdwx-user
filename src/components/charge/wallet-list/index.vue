@@ -39,16 +39,20 @@ export default {
     },
     methods: {
         async getData (data) {
-            const { code, message, result } = await accountwalletverify(data)
-            if (code === 200) {
-                if (getType(result) === 'array') {
-                    this.successList = result.filter(item => item.employ === 1)
-                    this.reasonList = result.filter(item => item.employ !== 1)
+            try {
+                const { code, message, result } = await accountwalletverify(data)
+                if (code === 200) {
+                    if (getType(result) === 'array') {
+                        this.successList = result.filter(item => item.employ === 1)
+                        this.reasonList = result.filter(item => item.employ !== 1)
+                    }
+                    this.showList = true
+                } else {
+                    this.toast(message)
                 }
-                this.showList = true
-            } else {
-                this.toast(message)
-            }
+           } catch (error) {
+               this.toast('异常错误', { error, vm: this, line: 54 })
+           }
         },
         closed () {
             this.active = 0

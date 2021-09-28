@@ -23,7 +23,7 @@ server.interceptors.request.use(config => {
         url: api + config.url
     }
 }, error => {
-    Promise.reject(error)
+    return Promise.reject(error)
 })
 
 server.interceptors.response.use(response => {
@@ -37,10 +37,9 @@ server.interceptors.response.use(response => {
     //             wx.closeWindow()
     //         }
     //     })
-    // }
     return response
 }, error => {
-    Promise.reject(error)
+    return Promise.reject(error)
 })
 
 export default ({ method = 'get', url = '', params = {}, data = {}, loadText = '正在加载中' } = {}) => {
@@ -54,9 +53,11 @@ export default ({ method = 'get', url = '', params = {}, data = {}, loadText = '
                 })
             }
             server.get(url, { params })
-            .then(({ status, data }) => {
+            .then(({ status, data } = {}) => {
                 if (status === 200) {
                     resolve(data)
+                } else {
+                    reject(new Error('请求异常'))
                 }
             })
             .catch(reason => {
@@ -77,9 +78,11 @@ export default ({ method = 'get', url = '', params = {}, data = {}, loadText = '
                 })
             }
             server.post(url, Qs.stringify(data))
-            .then(({ status, data }) => {
+            .then(({ status, data } = {}) => {
                 if (status === 200) {
                     resolve(data)
+                } else {
+                    reject(new Error('请求异常'))
                 }
             })
             .catch(reason => {
