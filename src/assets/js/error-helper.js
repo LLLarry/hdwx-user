@@ -12,8 +12,9 @@ Vue.config.errorHandler = function (err, vm, info) {
             -------【hdwx-user-错误start】-------
                 时间： ${dateTime}
                 错误信息: ${err.stack} 
-                名称：${vm.$route.name}
-                行数/info： ${info},
+                名称：[${vm.$route.name}]-[${vm.$vnode.tag}]
+                行数/info： ${info}
+                地址：${window.location.href}
                 额外数据： ${JSON.stringify(vm.$data)} 
             -------【hdwx-user-错误end】-------
         `
@@ -30,8 +31,9 @@ Vue.prototype.$error = (error, vm, line) => {
             -------【hdwx-user-错误start】-------
             时间：${dateTime} 
             错误信息: ${stack}
-            名称：${vm.$route.name} 
-            行数/info： ${line},
+            名称：[${vm.$route.name}]-[${vm.$vnode.tag}]
+            行数/info： ${line}
+            地址：${window.location.href}
             额外数据： ${JSON.stringify(vm.$data)} 
             -------【hdwx-user-错误end】-------
         `
