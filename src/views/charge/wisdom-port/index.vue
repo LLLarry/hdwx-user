@@ -332,6 +332,7 @@ export default {
             })
         },
         checkPortStatus (portList) {
+            if (!Array.isArray(portList)) return false
             const portItem = portList.find(item => this.selectPort === Number(item.port))
             if (portItem) {
                 const portStatus = Number(portItem.portStatus)
