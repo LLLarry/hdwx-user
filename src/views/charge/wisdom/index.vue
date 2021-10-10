@@ -70,7 +70,7 @@ import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
 import walletList from '@/components/charge/wallet-list'
 import { verification, fmtMoney } from '@/utils/util'
 import { deviceCharge, walletChargePay } from '@/require/charge'
-import { verifiUserIfCharge, wxPayFun, moneylyPayFun } from '../helper.js'
+import { verifiUserIfCharge, wxPayFun, moneylyPayFun, createPortStatusByHV } from '../helper.js'
 export default {
     components: {
         Header,
@@ -183,10 +183,10 @@ export default {
                 const {
                     code, message, portStatus, templatelist, servephone, areaname, brandname, tourtopupbalance,
                     touristsendbalance, chargeInfo, payhint, ifmonth, defaultindex = 0, packageMonth = {},
-                    deviceaid, merid, touruid, walletid, touraid, ifwallet
+                    deviceaid, merid, touruid, walletid, touraid, ifwallet, hardversion
                     } = await deviceCharge(data)
                 if (code === 200) {
-                    this.portList = portStatus
+                    this.portList = createPortStatusByHV(portStatus, hardversion)
                     this.templatelist = templatelist
                     this.serverPhone = servephone
                     this.areaname = areaname

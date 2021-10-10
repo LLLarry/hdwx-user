@@ -98,7 +98,7 @@ import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
 import walletList from '@/components/charge/wallet-list'
 import { verification, fmtMoney, getType } from '@/utils/util'
 import { deviceCharge, walletChargePay, queryAddrAllPortStatus } from '@/require/charge'
-import { verifiUserIfCharge, wxPayFun, moneylyPayFun } from '../helper.js'
+import { /* verifiUserIfCharge, */ wxPayFun, moneylyPayFun, createPortStatusByHV } from '../helper.js'
 export default {
     components: {
         Header,
@@ -215,18 +215,21 @@ export default {
                 this.selectPort = port
                 this.show = true
             } else { // 使用端口
-                // 检验当前使用端口能否作为本人续充端口使用
-                verifiUserIfCharge({
-                    openid: this.openid,
-                    code: this.code,
-                    port
-                }).then(orderid => {
-                    if (orderid) { // 判断orderid是否存在
-                        this.selectPort = port
-                        this.orderid = orderid
-                        this.show = true
-                    }
+                this.alert('当前端口已被占用，请更换端口使用').then(() => {
+                    wx.closeWindow()
                 })
+                // 检验当前使用端口能否作为本人续充端口使用
+                // verifiUserIfCharge({
+                //     openid: this.openid,
+                //     code: this.code,
+                //     port
+                // }).then(orderid => {
+                //     if (orderid) { // 判断orderid是否存在
+                //         this.selectPort = port
+                //         this.orderid = orderid
+                //         this.show = true
+                //     }
+                // })
             }
         },
         // 设置支付方式
@@ -246,10 +249,10 @@ export default {
                 const {
                     code, message, portStatus, templateTimelist, templateMoneylist, servephone, areaname, brandname, tourtopupbalance,
                     touristsendbalance, chargeInfo, payhint, defaultindex = 0,
-                    deviceaid, merid, touruid, grade, temporaryc, touraid, walletid, nowtime
+                    deviceaid, merid, touruid, grade, temporaryc, touraid, walletid, nowtime, hardversion
                     } = await deviceCharge(data)
                 if (code === 200) {
-                    this.portList = portStatus || []
+                    this.portList = createPortStatusByHV(portStatus, hardversion)
                     this.templateTimelist = templateTimelist
                     this.templateMoneylist = templateMoneylist
                     this.serverPhone = servephone

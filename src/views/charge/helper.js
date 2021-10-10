@@ -57,3 +57,35 @@ export const moneylyPayFun = async (data) => {
         toast('异常错误', 'fail')
     }
 }
+
+/**
+ * 通过硬件版本号生成端口状态
+ * @param {*} hardversion 硬件版本号
+ * @returns List
+ */
+export const createPortStatusByHV = (portStatus, hardversion) => {
+    if (Array.isArray(portStatus) && portStatus.length) return portStatus
+    // map 硬件版本号对应端口数
+    const map = {
+        '00': 10,
+        '01': 10,
+        '02': 2,
+        '03': 10,
+        '05': 16,
+        '06': 20,
+        '07': 1,
+        '08': 10,
+        '09': 16,
+        10: 20,
+        11: 2
+    }
+    const portNum = map[hardversion]
+    const portList = []
+    for (let i = 0; i < portNum; i++) {
+        portList.push({
+            port: i + 1,
+            portStatus: 1
+        })
+    }
+    return portList
+}
