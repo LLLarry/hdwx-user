@@ -18,7 +18,7 @@
             position="bottom"
             duration=".4s"
             :overlay="false"
-            :style="{ bottom: '2.133rem', maxHeight: 'calc(80vh - 2.133rem)', 'box-shadow' : `${isPort ? '0 -0.0533rem 0.32rem rgba(100, 101, 102, 0.24)' : 'none'}`}"
+            :style="{ bottom: '2.133rem', maxHeight: 'calc(76vh - 2.133rem)', 'box-shadow' : `${isPort ? '0 -0.0533rem 0.32rem rgba(100, 101, 102, 0.24)' : 'none'}`}"
             :overlay-style="{ height: 'calc(100% - 2.133rem)'}"
             @open="level = true"
             @closed="closed"
@@ -420,9 +420,9 @@ export default {
                     // })
                 }
             } else {
-                this.alert('未查询到端口状态').then(res => {
-                    wx.closeWindow()
-                })
+                // this.alert('未查询到端口状态').then(res => {
+                //     wx.closeWindow()
+                // })
             }
         },
         // 判断钱包余额，如果大于指定值，则默认选中钱包
@@ -441,9 +441,3 @@ export default {
     }
 }
 </script>
-
-<style lang="scss">
-.wisdom {
-    padding-top: 115px;
-}
-</style>

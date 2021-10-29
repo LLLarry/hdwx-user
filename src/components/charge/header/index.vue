@@ -1,5 +1,5 @@
 <template>
-  <header class="charge-header shadow-md padding-x-3 padding-y-3 bg-white position-fixed">
+  <header class="charge-header shadow-md padding-x-3 padding-y-3 bg-white">
       <ul class="d-flex flex-wrap text-size-md">
           <li class="w-50 margin-bottom-2">
               <div class="d-flex align-items-center text-000">
@@ -16,13 +16,30 @@
                   <span class="text-truncate area-name">{{areaname}}</span>
               </div>
           </li>
-          <li class="w-100 text-size-md margin-bottom-2" v-if="chargeTip" @click="showTip">
-              <div class="d-flex align-items-center text-666">
-                  <i class="iconfont icon-ti-shi text-success text-size-lg"></i>
-                  <span class="margin-left-1 text-success">收费说明</span>
-                  <van-icon name="arrow" class="text-success" size="0.426rem" />
-              </div>
-          </li>
+          <div class="d-flex w-100 justify-content-between">
+                <li class="w-50 text-size-md margin-bottom-2" v-if="chargeTip" @click="showTip">
+                    <div class="d-flex align-items-center text-666">
+                        <i class="iconfont icon-ti-shi text-success text-size-lg"></i>
+                        <span class="margin-left-1 text-success">收费说明</span>
+                        <van-icon name="arrow" class="text-success" size="0.426rem" />
+                    </div>
+                </li>
+                <li class="w-50 text-size-md margin-bottom-2" v-if="uid">
+                    <div class="d-flex align-items-center justify-content-end text-666">
+                        <i class="iconfont icon-id text-success text-size-lg"></i>
+                        <!-- <span class="margin-left-1">用户ID：</span> -->
+                        <a class="margin-left-1 text-primary" href="/general/index">{{ String(uid).padStart(8, '0') }}</a>
+                    </div>
+                </li>
+          </div>
+          <div class="w-100 position-relative margin-bottom-2"  @click="showTip" v-if="$route.path !== '/chargeicon'">
+              <ul class="text-999 text-size-sm">
+                  <li v-for="item in chargeInfoList2" :key="item">
+                      <div>{{item}}</div>
+                  </li>
+              </ul>
+              <van-icon name="arrow" class="charge-list-icon position-absolute text-999" size="0.46rem" />
+          </div>
           <li class="w-100 text-size-md">
               <div class="d-flex align-items-center text-666">
                   <i class="iconfont icon-dianhua text-success text-size-lg"></i>
@@ -55,13 +72,8 @@
                   <div class="text-p padding-x-3" v-if="areaname">设备编号：{{code}}</div>
                   <hd-title class="margin-top-1">收费说明</hd-title>
                   <!-- 模板收费说明 -->
-                  <ul class="text-666 padding-x-3" v-if="chargeTip.chargeInfo">
-                      <li class="margin-bottom-1" v-for="(item, index) in this.chargeTip.chargeInfo.split(/[\n\r]/)" :key="index">{{item}}</li>
-                  </ul>
-                  <!-- 默认收费说明 -->
-                   <ul class="text-666 padding-x-3" v-else>
-                      <li class="margin-bottom-1">选择的充电时间为小功率电动车充电时间，仅供参考。</li>
-                      <li class="margin-bottom-1">大功率电动车充电时间智能动态计算，以实际为准。</li>
+                  <ul class="text-666 padding-x-3">
+                      <li class="margin-bottom-1" v-for="(item, index) in chargeInfoList" :key="index">{{item}}</li>
                   </ul>
 
                   <div class="padding-x-3 margin-top-4">
@@ -119,6 +131,21 @@ export default {
             immediate: true
         }
     },
+    computed: {
+        chargeInfoList () {
+            if (this.chargeTip && typeof this.chargeTip.chargeInfo === 'string') {
+                return this.chargeTip.chargeInfo.split(/[\n\r]/)
+            }
+            return [
+                '选择的充电时间为小功率电动车充电时间，仅供参考。',
+                '功率电动车充电时间智能动态计算，以实际为准。'
+            ]
+        },
+        chargeInfoList2 () {
+            const chargeInfoList = [...this.chargeInfoList]
+            return chargeInfoList.splice(0, 2)
+        }
+    },
     methods: {
         showTip () {
             // 扫设备二维码中使用header
@@ -150,13 +177,18 @@ export default {
 
 <style lang="scss">
 .charge-header {
-    top: 0;
+    /* top: 0;
     left: 0;
-    right: 0;
+    right: 0; */
     .area-name {
         // max-width: 70px;
         // max-width: 140px;
         max-width: 37vw;
+    }
+    .charge-list-icon {
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
     }
 }
 </style>

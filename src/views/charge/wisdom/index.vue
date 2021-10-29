@@ -1,5 +1,5 @@
 <template>
-    <div class="wisdom">
+    <div class="wisdom d-flex flex-column">
         <!-- 顶部区域 -->
         <Header
             :code="code"
@@ -8,8 +8,9 @@
             :chargeTip="chargeTip"
             :uid="uid"
         ></Header>
-        <main class="padding-top-2">
-            <select-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" />
+        <main class="padding-top-2 flex-1">
+            <!-- <select-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" /> -->
+            <charge-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" />
         </main>
         <van-popup
             v-model="show"
@@ -61,7 +62,8 @@
 <script>
 import Header from '@/components/charge/header'
 import Footer from '@/components/charge/footer'
-import selectPort from '@/components/charge/select-port'
+// import selectPort from '@/components/charge/select-port'
+import ChargePort from '@/components/charge/charge-port'
 import selectPortTip from '@/components/charge/select-port-tip'
 import selectTemp from '@/components/charge/select-temp'
 import warmTip from '@/components/charge/warm-tip'
@@ -74,7 +76,7 @@ import { verifiUserIfCharge, wxPayFun, moneylyPayFun, createPortStatusByHV } fro
 export default {
     components: {
         Header,
-        selectPort,
+        ChargePort,
         Footer,
         selectPaytype,
         selectTemp,
@@ -339,9 +341,3 @@ export default {
     }
 }
 </script>
-
-<style lang="scss">
-.wisdom {
-    padding-top: 115px;
-}
-</style>

@@ -1,5 +1,5 @@
 <template>
-    <div class="wisdom">
+    <div class="wisdom d-flex flex-column">
         <!-- 顶部区域 -->
         <Header
             :code="code"
@@ -9,8 +9,9 @@
             :chargeTip="chargeTip"
             :uid="uid"
         ></Header>
-        <main class="padding-top-2">
-            <select-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" />
+        <main class="padding-top-2 flex-1">
+            <!-- <select-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" /> -->
+            <charge-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" />
 
             <div class="position-absolute reload-box d-flex align-items-center justify-content-center text-size-md" v-if="addrnum">
                 <span>如端口状态与实际不符，请点击</span>
@@ -89,7 +90,8 @@
 <script>
 import Header from '@/components/charge/header'
 import Footer from '@/components/charge/footer'
-import selectPort from '@/components/charge/select-port'
+// import selectPort from '@/components/charge/select-port'
+import ChargePort from '@/components/charge/charge-port'
 import selectPortTip from '@/components/charge/select-port-tip'
 import selectTemp from '@/components/charge/select-temp'
 import warmTip from '@/components/charge/warm-tip'
@@ -102,7 +104,8 @@ import { /* verifiUserIfCharge, */ wxPayFun, moneylyPayFun, createPortStatusByHV
 export default {
     components: {
         Header,
-        selectPort,
+        // selectPort,
+        ChargePort,
         Footer,
         selectPaytype,
         selectTemp,
@@ -441,7 +444,7 @@ export default {
 
 <style lang="scss">
 .wisdom {
-    padding-top: 115px;
+    /* padding-top: 115px;
     main {
         height: calc(100vh - 205px);
         position: relative;
@@ -450,6 +453,6 @@ export default {
             left: 0;
             right: 0;
         }
-    }
+    } */
 }
 </style>

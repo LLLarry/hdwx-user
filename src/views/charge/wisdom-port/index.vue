@@ -1,5 +1,5 @@
 <template>
-    <div class="wisdom">
+    <div class="wisdom d-flex flex-column">
         <!-- 顶部区域 -->
         <Header
             :code="code"
@@ -11,14 +11,14 @@
             @openOrClose="openOrClose"
             ref="header"
         ></Header>
-        <main class="padding-top-2">
+        <main class="padding-top-2 flex-1">
         </main>
         <van-popup
             v-model="show"
             position="bottom"
             duration=".4s"
             :overlay="false"
-            :style="{ bottom: '2.133rem', maxHeight: 'calc(80vh - 2.133rem)', 'box-shadow' : `${isPort ? '0 -0.0533rem 0.32rem rgba(100, 101, 102, 0.24)' : 'none'}`}"
+            :style="{ bottom: '2.133rem', maxHeight: 'calc(76vh - 2.133rem)', 'box-shadow' : `${isPort ? '0 -0.0533rem 0.32rem rgba(100, 101, 102, 0.24)' : 'none'}`}"
             :overlay-style="{ height: 'calc(100% - 2.133rem)'}"
             @open="level = true"
             @closed="closed"
@@ -359,17 +359,11 @@ export default {
                     })
                 }
             } else {
-                this.alert('未查询到端口状态').then(res => {
-                    wx.closeWindow()
-                })
+                // this.alert('未查询到端口状态').then(res => {
+                //     wx.closeWindow()
+                // })
             }
         }
     }
 }
 </script>
-
-<style lang="scss">
-.wisdom {
-    padding-top: 115px;
-}
-</style>

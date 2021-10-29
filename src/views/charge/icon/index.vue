@@ -1,35 +1,38 @@
 <template>
-  <div class="charge-icon">
+  <div class="charge-icon d-flex flex-column">
+      <!-- header -->
       <Header :code="code" :areaname="areaname" :serverPhone="serverPhone"></Header>
-      <hd-title>请选择投币个数</hd-title>
-      <div class="card padding-y-3 bg-white">
-          <select-post :list="tempList" :selectIndex="selectPostIndex" @selectPostBack="handleSelectPost">
-              <template v-slot:default="{data}">
-                  {{data.name}}
-              </template>
-          </select-post>
-      </div>
-      <hd-line />
-      <div>
-          <select-paytype :list="selectPaytype" :select="selectPayTypeNum" @selectPayTypeBack="selectPayTypeBack">
-              <template v-slot:default="{data}">
-                  <span
-                  class="text-size-sm text-p"
-                  v-if="
-                    typeof data !== 'string'
-                  ">（{{data.slot}}）</span>
-              </template>
-          </select-paytype>
-      </div>
+      <main>
+          <hd-title>请选择投币个数</hd-title>
+            <div class="card padding-y-3 bg-white">
+                <select-post :list="tempList" :selectIndex="selectPostIndex" @selectPostBack="handleSelectPost">
+                    <template v-slot:default="{data}">
+                        {{data.name}}
+                    </template>
+                </select-post>
+            </div>
+            <hd-line />
+            <div>
+                <select-paytype :list="selectPaytype" :select="selectPayTypeNum" @selectPayTypeBack="selectPayTypeBack">
+                    <template v-slot:default="{data}">
+                        <span
+                        class="text-size-sm text-p"
+                        v-if="
+                            typeof data !== 'string'
+                        ">（{{data.slot}}）</span>
+                    </template>
+                </select-paytype>
+            </div>
 
-      <div class="padding-x-3 padding-top-4">
-          <van-button
-            type="primary"
-            block
-            class="margin-top-4"
-            @click="goCharge"
-        >开始充电</van-button>
-      </div>
+            <div class="padding-x-3 padding-top-4">
+                <van-button
+                    type="primary"
+                    block
+                    class="margin-top-4"
+                    @click="goCharge"
+                >开始充电</van-button>
+            </div>
+      </main>
 
     <!--
       <div class="padding-x-3 margin-top-4 text-size-default">
@@ -47,7 +50,6 @@ import SelectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
 import { getChargeDataByCodeAndOpenid, inCoinsPay, inCoinsWalletPay } from '@/require/charge'
 import { verification, fmtMoney } from '@/utils/util'
 import wxpay from '@/utils/wxUtil/wxpay'
-
 export default {
     components: {
         SelectPost,
@@ -193,7 +195,7 @@ export default {
 </script>
 
 <style lang="scss">
-.charge-icon {
+/* .charge-icon {
     padding-top: 90px;
     .hd-title {
         div {
@@ -201,5 +203,5 @@ export default {
             font-weight: bold;
         }
     }
-}
+} */
 </style>

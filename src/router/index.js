@@ -39,6 +39,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "wisdom-v3" */ '../views/charge/wisdom-v3/index.vue')
   },
   {
+    path: '/wisdomv3test',
+    name: 'wisdom-v3-test',
+    component: () => import(/* webpackChunkName: "wisdom-v3-test" */ '../views/charge/wisdom-v3-test/index.vue')
+  },
+  {
     path: '/wisdomv3port',
     name: 'wisdom-v3-port',
     component: () => import(/* webpackChunkName: "wisdom-v3-port" */ '../views/charge/wisdom-v3-port/index.vue')

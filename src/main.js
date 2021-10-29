@@ -17,7 +17,7 @@ import HdLine from '@/components/hd-line'
 import HdTitle from '@/components/hd-title'
 import loadingIndex from '@/components/hd-loading/loadingIndex'
 import VueMeta from 'vue-meta'
-import { Button, Icon, Dialog, Overlay, Loading, Toast, Popup, Switch, Tab, Tabs, CouponCell, CouponList } from 'vant'
+import { Button, Icon, Dialog, Overlay, Loading, Toast, Popup, Switch, Tab, Tabs, CouponCell, CouponList, Collapse, CollapseItem } from 'vant'
 Vue.use(VueMeta, {
   // optional pluginOptions
   refreshOnceOnNavigation: true
@@ -36,6 +36,8 @@ Vue.use(Tab)
 Vue.use(Tabs)
 Vue.use(CouponCell)
 Vue.use(CouponList)
+Vue.use(Collapse)
+Vue.use(CollapseItem)
 
 Vue.config.productionTip = false
 Vue.component('hd-line', HdLine)
