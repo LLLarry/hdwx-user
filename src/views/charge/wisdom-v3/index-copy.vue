@@ -1,33 +1,79 @@
 <template>
-    <div class="wisdom-v3-port d-flex flex-column">
+    <div class="wisdom d-flex flex-column">
         <!-- 顶部区域 -->
         <Header
             :code="code"
+            :addrnum="addrnum"
             :areaname="areaname"
             :serverPhone="serverPhone"
             :chargeTip="chargeTip"
-            :isPort="isPort"
             :uid="uid"
-            @openOrClose="openOrClose"
-            ref="header"
         ></Header>
         <main class="padding-top-2 flex-1">
-            <charge-v3-contral
-                :selectPort="selectPort"
-                :temporaryc="temporaryc"
-                :chageType="chageType"
-                :templateTimelist="templateTimelist"
-                :selectTimeTempId="selectTimeTempId"
-                :templateMoneylist="templateMoneylist"
-                :selectMoneyTempId="selectMoneyTempId"
-                :selectPaytype="selectPaytype"
-                :selectPayTypeNum="selectPayTypeNum"
-                :openid="openid"
-                :aid="aid"
-                :merid="merid"
-                @changeValue="changeValue"
-            />
+            <!-- <select-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" /> -->
+            <charge-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" />
+
+            <div class="position-absolute reload-box d-flex align-items-center justify-content-center text-size-md" v-if="addrnum">
+                <span>如端口状态与实际不符，请点击</span>
+                <van-icon name="replay" class="reload-port margin-left-1 text-success" size=".5rem" @click="updatePortStatus" />
+            </div>
         </main>
+        <van-popup
+            v-model="show"
+            position="bottom"
+            duration=".4s"
+            :style="{ bottom: '2.133rem', maxHeight: 'calc(80vh - 2.133rem)'}"
+            :overlay-style="{ height: 'calc(100% - 2.133rem)'}"
+            @open="level = true"
+            @closed="level = false"
+        >
+            <div class="padding-bottom-3">
+                <!-- 选择插座提示 -->
+                <div class="padding-y-3 padding-x-3">
+                    <select-port-tip :selectPort="selectPort" />
+                </div>
+                <van-tabs v-if="temporaryc === 1" v-model="chageType" type="card" color="#07c160" title-inactive-color="#666666">
+                    <van-tab :title-style="{ fontSize: '0.32rem' }">
+                        <template #title> 按时间付费 </template>
+                         <!-- 选择按时间付费模板列表 -->
+                        <div class="padding-x-3 margin-top-3">
+                            <select-temp :list="templateTimelist" :selectId="selectTimeTempId" type="time" @selectChargeTemp="selectChargeTemp" />
+                        </div>
+                    </van-tab>
+                    <van-tab :title-style="{ fontSize: '0.32rem' }">
+                        <template #title> 按金额付费<span style="font-size: 0.28rem;">（临时充电）</span> </template>
+                         <!-- 选择按金额付费模板列表 -->
+                        <div class="padding-x-3 margin-top-3">
+                            <select-temp :list="templateMoneylist" :selectId="selectMoneyTempId" type="money" @selectChargeTemp="selectChargeTemp" />
+                        </div>
+                    </van-tab>
+                </van-tabs>
+                <div class="padding-x-3" v-else>
+                    <select-temp :list="templateTimelist" :selectId="selectTimeTempId" type="time" @selectChargeTemp="selectChargeTemp" />
+                </div>
+                <hd-line />
+                <!-- 选择支付方式列表 -->
+                <select-paytype :list="selectPaytype" :select="selectPayTypeNum" @selectPayTypeBack="selectPayTypeBack">
+                    <template v-slot:default="{data}">
+                        <span
+                        class="text-size-sm text-p"
+                        v-if="
+                            typeof data !== 'string'
+                        ">（{{data.slot}}）</span>
+                    </template>
+                </select-paytype>
+
+                <!-- 温馨提示 -->
+                <warm-tip :openid="openid" :aid="aid" :merid="merid" />
+
+                <div class="padding-x-3 margin-top-2 text-success text-size-sm" v-show="chageType === 0" style="line-height: 1.5">
+                    提示：“按时间收费”模式为先充电后付费，仅支持预充钱包支付。如需充值钱包，请点击上方充值按钮进行充值！
+                </div>
+                <div class="padding-x-3 margin-top-2 text-success text-size-sm" v-show="chageType === 1" style="line-height: 1.5">
+                    提示：机器屏幕上显示时间为小功率电动车充电时间，实际充电时间会根据电动车功率大小相应缩短并提前结束充电！
+                </div>
+            </div>
+        </van-popup>
         <!-- 底部区域 -->
         <Footer :level="level" @goCharge="goCharge">
             {{chargePayTip}}
@@ -44,40 +90,45 @@
 <script>
 import Header from '@/components/charge/header'
 import Footer from '@/components/charge/footer'
-// import selectPortTip from '@/components/charge/select-port-tip'
-// import selectTemp from '@/components/charge/select-temp'
-// import warmTip from '@/components/charge/warm-tip'
+// import selectPort from '@/components/charge/select-port'
+import ChargePort from '@/components/charge/charge-port'
+import selectPortTip from '@/components/charge/select-port-tip'
+import selectTemp from '@/components/charge/select-temp'
+import warmTip from '@/components/charge/warm-tip'
 import chargeOverlay from '@/components/charge/charge-overlay'
-// import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
-import { paytypeMap } from '@/components/charge/select-paytype'
+import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
 import walletList from '@/components/charge/wallet-list'
 import { verification, fmtMoney, getType } from '@/utils/util'
-import { deviceCharge, walletChargePay } from '@/require/charge'
-import ChargeV3Contral from '@/components/charge/charge-v3-contral'
-import { wxPayFun, /* verifiUserIfCharge, */moneylyPayFun } from '../helper.js'
+import { deviceCharge, walletChargePay, queryAddrAllPortStatus } from '@/require/charge'
+import { /* verifiUserIfCharge, */ wxPayFun, moneylyPayFun, createPortStatusByHV } from '../helper.js'
 export default {
     components: {
         Header,
+        // selectPort,
+        ChargePort,
         Footer,
-        // selectPaytype,
-        // selectTemp,
-        // selectPortTip,
+        selectPaytype,
+        selectTemp,
+        selectPortTip,
         chargeOverlay,
-        // warmTip,
-        walletList,
-        ChargeV3Contral
+        warmTip,
+        walletList
     },
     data () {
         return {
-            isPort: true, // 是否是扫端口页面
             chageType: 0, // 充电类型： 0 按时间充电 1 按金额充电
             // grade: 2, // 默认支付在那个选择上面： 1按 金额付费    2 按时间付费
             temporaryc: 1, // 是否支持临时充电  1 支持临时充电
             code: '',
+            addrnum: '',
             openid: '',
             serverPhone: '',
             areaname: '',
             titleText: '智慧款充电', // titleText
+            chargeTip: {
+                chargeInfo: null, // 收费标准
+                payhint: '' // 收费说明，下次不再提醒是否展示
+            },
             orderid: '', // 续充订单的订单id
             aid: '', // 设备所属小区id
             merid: '', // 设备所属商户id
@@ -86,14 +137,11 @@ export default {
             walletid: '', // 钱包id
             tourtopupbalance: 0, // 充值金额
             touristsendbalance: 0, // 赠送金额
-            chargeTip: {
-                chargeInfo: null, // 收费标准
-                payhint: '' // 收费说明，下次不再提醒是否展示
-                // defaultShow: true // 默认充电提示是否显示
-            },
+            portList: [
+                // { port: 1, portStatus: 1 }
+            ],
             selectPort: -1, // 选中的端口号
             show: false,
-            show01: false,
             templateTimelist: [], // 按照时间充电模板列表
             templateMoneylist: [], // 按照金额充电模板列表
             selectTimeTempId: -1, // 选中时间充电模板id
@@ -101,7 +149,8 @@ export default {
             selectPaytype: ['微信支付', '钱包支付'/* , { title: '包月支付', slot: '123456' } */],
             selectPayTypeNum: paytypeMap['微信支付'], // 默认选中微信支付,
             level: false, // footer的层级
-            walletRechargeUrl: '' // 钱包充值跳转路径
+            walletRechargeUrl: '', // 钱包充值跳转路径
+            nowtime: '' // 访问当前时间时间戳
         }
     },
     computed: {
@@ -131,13 +180,14 @@ export default {
         }
     },
     mounted () {
-        const { code, openid, port = -1 } = this.$route.query
+        const { code, openid, addrnum } = this.$route.query
         this.code = code
         this.openid = openid
-        this.selectPort = Number(port)
+        this.addrnum = addrnum
         this.getInitData({
             code,
-            openid
+            openid,
+            addrnum
         })
     },
     watch: {
@@ -161,45 +211,51 @@ export default {
         }
     },
     methods: {
-        changeValue ({ key, value }) {
-            this.$set(this, key, value)
-        },
-        // 设置支付方式
-        // selectPayTypeBack (num) {
-        //     this.selectPayTypeNum = num
-        // },
-        // 设置选中的充电模板
-        // selectChargeTemp ({ type, id }) {
-        //     if (type === 'time') {
-        //         this.selectTimeTempId = id
-        //     } else {
-        //         this.selectMoneyTempId = id
-        //     }
-        // },
-        // 当扫描端口二维码时header中充电提示显示与否回调
-        openOrClose (flag) {
-            if (flag) { // 提示信息将要展示
-                if (!this.show) { // 判断当前控制菜单为隐藏状态
-                    this.closed() // 调用方法，降低footer层级和展示提示信息
-                } else { // 判断当前控制菜单为展示状态
-                    this.show = false // 改变控制菜单为隐藏状态，当隐藏完之后会调用closed函数
-                }
-            } else { // 提示信息将要关闭
-                this.show = true // 改变控制菜单为展示状态
+        handleSelectPort ({ port, portStatus }) {
+            if (portStatus === 3 || portStatus === 4) { // 故障端口
+                this.toast('此端口为故障端口')
+            } else if (portStatus === 1) { // 空闲端口
+                this.selectPort = port
+                this.show = true
+            } else { // 使用端口
+                this.alert('当前端口已被占用，请更换端口使用').then(() => {
+                    wx.closeWindow()
+                })
+                // 检验当前使用端口能否作为本人续充端口使用
+                // verifiUserIfCharge({
+                //     openid: this.openid,
+                //     code: this.code,
+                //     port
+                // }).then(orderid => {
+                //     if (orderid) { // 判断orderid是否存在
+                //         this.selectPort = port
+                //         this.orderid = orderid
+                //         this.show = true
+                //     }
+                // })
             }
         },
-        closed () {
-            this.level = false
-            this.$refs.header.show = true
+        // 设置支付方式
+        selectPayTypeBack (num) {
+            this.selectPayTypeNum = num
+        },
+        // 设置选中的充电模板
+        selectChargeTemp ({ type, id }) {
+            if (type === 'time') {
+                this.selectTimeTempId = id
+            } else {
+                this.selectMoneyTempId = id
+            }
         },
         async getInitData (data) {
             try {
                 const {
-                code, message, templateTimelist, templateMoneylist, servephone, areaname, brandname, portStatus = [],
-                tourtopupbalance, touristsendbalance, chargeInfo, payhint, defaultindex = 0,
-                deviceaid, merid, touruid, grade, temporaryc, touraid, walletid
-                } = await deviceCharge(data)
+                    code, message, portStatus, templateTimelist, templateMoneylist, servephone, areaname, brandname, tourtopupbalance,
+                    touristsendbalance, chargeInfo, payhint, defaultindex = 0,
+                    deviceaid, merid, touruid, grade, temporaryc, touraid, walletid, nowtime, hardversion
+                    } = await deviceCharge(data)
                 if (code === 200) {
+                    this.portList = createPortStatusByHV(portStatus, hardversion)
                     this.templateTimelist = templateTimelist
                     this.templateMoneylist = templateMoneylist
                     this.serverPhone = servephone
@@ -213,22 +269,18 @@ export default {
                     this.temporaryc = temporaryc
                     this.touraid = touraid
                     this.walletid = walletid
+                    this.nowtime = nowtime
+                    // this.grade = grade
                     if (grade === 1 && temporaryc === 1) { // grade 1按 金额付费    2 按时间付费; temporaryc 1 支持按金额付费
                         this.chageType = 1 // 按时间充电
                     }
                     this.chargeTip = {
-                        ...this.chargeTip,
                         chargeInfo, // 收费标准
                         payhint, // 收费说明，下次不再提醒是否展示
                         defaultShow: payhint === 1
                     }
-                    // 加载完成就判断有没有下次不再加载信息，没有的话就直接展示控制栏
-                    if (payhint !== 1) {
-                        this.show = true
-                    }
                     this.selectTimeTempId = (templateTimelist[0] || { id: -1 }).id // 按时间充电默认选中第一个
                     this.selectMoneyTempId = templateMoneylist[defaultindex || 0]?.id // 按金额充电默认选中后台传过来的索引
-                    // 设置支付方式
                     // 设置支付方式 找到旧的钱包索引，拿新的替换旧的
                     const walletItem = {
                         title: '钱包支付',
@@ -252,28 +304,25 @@ export default {
                         this.selectPaytype.splice(walletItemIndex, 1, walletItem)
                     }
                     this.selectWalletByBalance()
-                    // 查询当前端口是否是可用端口
-                    this.checkPortStatus(portStatus)
                 } else {
                     this.alert(message).then(() => {
                         wx.closeWindow()
                     })
                 }
             } catch (error) {
-                console.log(error)
-                this.alert('异常错误', { error, vm: this, line: 284 }).then(() => {
+                this.alert('异常错误', { error, vm: this, line: 290 }).then(() => {
                     wx.closeWindow()
                 })
             }
         },
-        // 校验
+        // 校验选择的信息是否正确
         verifi () {
             const verifiList = [
                 {
                     verifi: this.selectPort > 0,
                     content: '请先选择充电端口'
                 },
-                 (() => {
+                (() => {
                     if (this.chageType === 0) { // 按时间充电
                         return {
                                 verifi: this.selectTimeTempId > 0,
@@ -309,7 +358,8 @@ export default {
                 tempid: this.chageType === 0 ? this.selectTimeTempId : this.selectMoneyTempId,
                 port: this.selectPort,
                 openid: this.openid,
-                code: this.code
+                code: this.code,
+                addrnum: this.addrnum
             })
         },
         // 钱包支付
@@ -320,7 +370,8 @@ export default {
                     port: this.selectPort,
                     openid: this.openid,
                     code: this.code,
-                    ifcontinue: this.orderid
+                    ifcontinue: this.orderid,
+                    addrnum: this.addrnum
                 })
                 if (code === 200) {
                     this.alert('支付成功').then(() => {
@@ -342,7 +393,7 @@ export default {
                     this.toast(message)
                 }
             } catch (error) {
-                this.toast('异常错误', { error, vm: this, line: 365 })
+                this.toast('异常错误', { error, vm: this, line: 371 })
             }
         },
         // 包月充电
@@ -353,42 +404,26 @@ export default {
                 code: this.code
             })
         },
-        checkPortStatus (portList) {
-            portList = Array.isArray(portList) ? portList : []
-            const portItem = portList.find(item => this.selectPort === Number(item.port))
-            if (portItem) {
-                const portStatus = Number(portItem.portStatus)
-                if (portStatus === 3 || portStatus === 4) { // 故障端口
-                    this.alert('此端口为故障端口，请更换端口使用').then(res => {
-                        wx.closeWindow()
+        // 更新端口状态
+        async updatePortStatus () {
+           try {
+                const { code, message, portlist } = await queryAddrAllPortStatus({
+                    code: this.code,
+                    addr: this.addrnum,
+                    nowtime: this.nowtime
+                })
+                if (code === 200) {
+                    this.portList = this.portList.map(item => {
+                        item.portStatus = portlist[item.port]
+                        return item
                     })
-                } else if (portStatus === 2) { // 使用端口
-                    // 当前端口不支持续充
-                    this.alert('当前端口已被占用，请更换端口使用').then(() => {
-                        wx.closeWindow()
-                    })
-                    // // 检验当前使用端口能否作为本人续充端口使用
-                    // verifiUserIfCharge({
-                    //     openid: this.openid,
-                    //     code: this.code,
-                    //     port: this.selectPort
-                    // })
-                    // .then(orderid => {
-                    //     if (orderid) { // 判断orderid是否存在
-                    //         this.orderid = orderid
-                    //     }
-                    // }).catch(e => {
-                    //     // 当前端口不支持续充
-                    //    this.alert(e).then(() => {
-                    //        wx.closeWindow()
-                    //    })
-                    // })
+                    this.$toast('更新成功')
+                } else {
+                    this.$toast(message)
                 }
-            } else {
-                // this.alert('未查询到端口状态').then(res => {
-                //     wx.closeWindow()
-                // })
-            }
+           } catch (error) {
+               this.toast('异常错误', { error, vm: this, line: 409 })
+           }
         },
         // 判断钱包余额，如果大于指定值，则默认选中钱包
         selectWalletByBalance () {
@@ -408,17 +443,16 @@ export default {
 </script>
 
 <style lang="scss">
-.wisdom-v3-port {
-    height: 100vh;
+.wisdom {
+    /* padding-top: 115px;
     main {
-        padding-bottom: 80px;
-        overflow-y: auto;
-    }
-    .van-tabs__nav--card {
-        border-radius: 0.18rem;
-    }
-    .contral-wrapper .item {
-        border-radius: 5px;
-    }
+        height: calc(100vh - 205px);
+        position: relative;
+        .reload-box {
+            bottom: 15px;
+            left: 0;
+            right: 0;
+        }
+    } */
 }
 </style>

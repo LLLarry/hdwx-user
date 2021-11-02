@@ -55,7 +55,6 @@
         :overlay-style="{transition: 'all .3s linear'}"
         :style="{'box-shadow' : `${isPort ? '0 -0.0533rem 0.32rem rgba(100, 101, 102, 0.24)' : 'none'}`}"
         duration=".4s"
-        :overlay="!isPort"
         :safe-area-inset-bottom="true"
         v-if="chargeTip"
         @closed="closed"
@@ -143,18 +142,20 @@ export default {
         },
         chargeInfoList2 () {
             const chargeInfoList = [...this.chargeInfoList]
-            return chargeInfoList.splice(0, 2)
+            return chargeInfoList.splice(0, 4)
         }
     },
     methods: {
         showTip () {
             // 扫设备二维码中使用header
-            if (!this.isPort) {
-                this.show = true
-            } else {
-                // 扫端口二维码中使用header, 当过渡完成时，调用父组件传过来的 openOrClose
-                this.$emit('openOrClose', true)
-            }
+            this.show = true
+            /** 修改header时修改 */
+            // if (!this.isPort) {
+            //     this.show = true
+            // } else {
+            //     // 扫端口二维码中使用header, 当过渡完成时，调用父组件传过来的 openOrClose
+            //     this.$emit('openOrClose', true)
+            // }
         },
         knowBack () {
             if (this.checked) {

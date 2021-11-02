@@ -1,5 +1,5 @@
 <template>
-    <div class="wisdom-v3-port d-flex flex-column">
+    <div class="wisdom">
         <!-- 顶部区域 -->
         <Header
             :code="code"
@@ -11,23 +11,65 @@
             @openOrClose="openOrClose"
             ref="header"
         ></Header>
-        <main class="padding-top-2 flex-1">
-            <charge-v3-contral
-                :selectPort="selectPort"
-                :temporaryc="temporaryc"
-                :chageType="chageType"
-                :templateTimelist="templateTimelist"
-                :selectTimeTempId="selectTimeTempId"
-                :templateMoneylist="templateMoneylist"
-                :selectMoneyTempId="selectMoneyTempId"
-                :selectPaytype="selectPaytype"
-                :selectPayTypeNum="selectPayTypeNum"
-                :openid="openid"
-                :aid="aid"
-                :merid="merid"
-                @changeValue="changeValue"
-            />
+        <main class="padding-top-2">
         </main>
+        <van-popup
+            v-model="show"
+            position="bottom"
+            duration=".4s"
+            :overlay="false"
+            :style="{ bottom: '2.133rem', maxHeight: 'calc(76vh - 2.133rem)', 'box-shadow' : `${isPort ? '0 -0.0533rem 0.32rem rgba(100, 101, 102, 0.24)' : 'none'}`}"
+            :overlay-style="{ height: 'calc(100% - 2.133rem)'}"
+            @open="level = true"
+            @closed="closed"
+        >
+            <div class="padding-bottom-3">
+                <!-- 选择插座提示 -->
+                <div class="padding-y-3 padding-x-3">
+                    <select-port-tip :selectPort="selectPort" />
+                </div>
+                <van-tabs v-if="temporaryc === 1" v-model="chageType" type="card" color="#07c160" title-inactive-color="#666666">
+                    <van-tab :title-style="{ fontSize: '0.32rem' }">
+                        <template #title> 按时间付费 </template>
+                         <!-- 选择按时间付费模板列表 -->
+                        <div class="padding-x-3 margin-top-3">
+                            <select-temp :list="templateTimelist" :selectId="selectTimeTempId" type="time" @selectChargeTemp="selectChargeTemp" />
+                        </div>
+                    </van-tab>
+                    <van-tab :title-style="{ fontSize: '0.32rem' }">
+                        <template #title> 按金额付费<span style="font-size: 0.28rem;">（临时充电）</span> </template>
+                         <!-- 选择按金额付费模板列表 -->
+                        <div class="padding-x-3 margin-top-3">
+                            <select-temp :list="templateMoneylist" :selectId="selectMoneyTempId" type="money" @selectChargeTemp="selectChargeTemp" />
+                        </div>
+                    </van-tab>
+                </van-tabs>
+                <div class="padding-x-3" v-else>
+                    <select-temp :list="templateTimelist" :selectId="selectTimeTempId" type="time" @selectChargeTemp="selectChargeTemp" />
+                </div>
+                <hd-line />
+                <!-- 选择支付方式列表 -->
+                <select-paytype :list="selectPaytype" :select="selectPayTypeNum" @selectPayTypeBack="selectPayTypeBack">
+                    <template v-slot:default="{data}">
+                        <span
+                        class="text-size-sm text-p"
+                        v-if="
+                            typeof data !== 'string'
+                        ">（{{data.slot}}）</span>
+                    </template>
+                </select-paytype>
+
+                <!-- 温馨提示 -->
+                <warm-tip :openid="openid" :aid="aid" :merid="merid" />
+
+                <div class="padding-x-3 margin-top-2 text-success text-size-sm" v-show="chageType === 0" style="line-height: 1.5">
+                    提示：“按时间收费”模式为先充电后付费，仅支持预充钱包支付。如需充值钱包，请点击上方充值按钮进行充值！
+                </div>
+                <div class="padding-x-3 margin-top-2 text-success text-size-sm" v-show="chageType === 1" style="line-height: 1.5">
+                    提示：机器屏幕上显示时间为小功率电动车充电时间，实际充电时间会根据电动车功率大小相应缩短并提前结束充电！
+                </div>
+            </div>
+        </van-popup>
         <!-- 底部区域 -->
         <Footer :level="level" @goCharge="goCharge">
             {{chargePayTip}}
@@ -44,28 +86,25 @@
 <script>
 import Header from '@/components/charge/header'
 import Footer from '@/components/charge/footer'
-// import selectPortTip from '@/components/charge/select-port-tip'
-// import selectTemp from '@/components/charge/select-temp'
-// import warmTip from '@/components/charge/warm-tip'
+import selectPortTip from '@/components/charge/select-port-tip'
+import selectTemp from '@/components/charge/select-temp'
+import warmTip from '@/components/charge/warm-tip'
 import chargeOverlay from '@/components/charge/charge-overlay'
-// import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
-import { paytypeMap } from '@/components/charge/select-paytype'
+import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
 import walletList from '@/components/charge/wallet-list'
 import { verification, fmtMoney, getType } from '@/utils/util'
 import { deviceCharge, walletChargePay } from '@/require/charge'
-import ChargeV3Contral from '@/components/charge/charge-v3-contral'
 import { wxPayFun, /* verifiUserIfCharge, */moneylyPayFun } from '../helper.js'
 export default {
     components: {
         Header,
         Footer,
-        // selectPaytype,
-        // selectTemp,
-        // selectPortTip,
+        selectPaytype,
+        selectTemp,
+        selectPortTip,
         chargeOverlay,
-        // warmTip,
-        walletList,
-        ChargeV3Contral
+        warmTip,
+        walletList
     },
     data () {
         return {
@@ -93,7 +132,6 @@ export default {
             },
             selectPort: -1, // 选中的端口号
             show: false,
-            show01: false,
             templateTimelist: [], // 按照时间充电模板列表
             templateMoneylist: [], // 按照金额充电模板列表
             selectTimeTempId: -1, // 选中时间充电模板id
@@ -161,21 +199,18 @@ export default {
         }
     },
     methods: {
-        changeValue ({ key, value }) {
-            this.$set(this, key, value)
-        },
         // 设置支付方式
-        // selectPayTypeBack (num) {
-        //     this.selectPayTypeNum = num
-        // },
+        selectPayTypeBack (num) {
+            this.selectPayTypeNum = num
+        },
         // 设置选中的充电模板
-        // selectChargeTemp ({ type, id }) {
-        //     if (type === 'time') {
-        //         this.selectTimeTempId = id
-        //     } else {
-        //         this.selectMoneyTempId = id
-        //     }
-        // },
+        selectChargeTemp ({ type, id }) {
+            if (type === 'time') {
+                this.selectTimeTempId = id
+            } else {
+                this.selectMoneyTempId = id
+            }
+        },
         // 当扫描端口二维码时header中充电提示显示与否回调
         openOrClose (flag) {
             if (flag) { // 提示信息将要展示
@@ -406,19 +441,3 @@ export default {
     }
 }
 </script>
-
-<style lang="scss">
-.wisdom-v3-port {
-    height: 100vh;
-    main {
-        padding-bottom: 80px;
-        overflow-y: auto;
-    }
-    .van-tabs__nav--card {
-        border-radius: 0.18rem;
-    }
-    .contral-wrapper .item {
-        border-radius: 5px;
-    }
-}
-</style>

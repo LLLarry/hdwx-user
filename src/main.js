@@ -17,11 +17,13 @@ import HdLine from '@/components/hd-line'
 import HdTitle from '@/components/hd-title'
 import loadingIndex from '@/components/hd-loading/loadingIndex'
 import VueMeta from 'vue-meta'
+import bus from '@/utils/bus'
 import { Button, Icon, Dialog, Overlay, Loading, Toast, Popup, Switch, Tab, Tabs, CouponCell, CouponList, Collapse, CollapseItem } from 'vant'
 Vue.use(VueMeta, {
   // optional pluginOptions
   refreshOnceOnNavigation: true
 })
+Vue.use(bus)
 
 Vue.use(loadingIndex)
 Vue.use(Button)
