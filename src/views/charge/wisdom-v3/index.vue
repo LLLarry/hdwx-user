@@ -11,12 +11,12 @@
         ></Header>
         <main class="padding-top-2 flex-1 overflow-auto">
             <!-- <select-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" /> -->
-            <charge-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" />
+            <charge-port :list="portList" :selectPort="selectPort" :nowtime="nowtime" @selectPortBack="handleSelectPort" />
 
-            <div class="position-absolute reload-box d-flex align-items-center justify-content-center text-size-md" v-if="addrnum">
+            <!-- <div class="position-absolute reload-box d-flex align-items-center justify-content-center text-size-md" v-if="addrnum">
                 <span>如端口状态与实际不符，请点击</span>
                 <van-icon name="replay" class="reload-port margin-left-1 text-success" size=".5rem" @click="updatePortStatus" />
-            </div>
+            </div> -->
             <charge-v3-contral
                 :selectPort="selectPort"
                 :temporaryc="temporaryc"
@@ -85,7 +85,7 @@ import { paytypeMap } from '@/components/charge/select-paytype'
 import ChargeV3Contral from '@/components/charge/charge-v3-contral'
 import walletList from '@/components/charge/wallet-list'
 import { verification, fmtMoney, getType } from '@/utils/util'
-import { deviceCharge, walletChargePay, queryAddrAllPortStatus } from '@/require/charge'
+import { deviceCharge, walletChargePay } from '@/require/charge'
 import { /* verifiUserIfCharge, */ wxPayFun, moneylyPayFun, createPortStatusByHV } from '../helper.js'
 export default {
     components: {
@@ -394,27 +394,27 @@ export default {
                 code: this.code
             })
         },
-        // 更新端口状态
-        async updatePortStatus () {
-           try {
-                const { code, message, portlist } = await queryAddrAllPortStatus({
-                    code: this.code,
-                    addr: this.addrnum,
-                    nowtime: this.nowtime
-                })
-                if (code === 200) {
-                    this.portList = this.portList.map(item => {
-                        item.portStatus = portlist[item.port]
-                        return item
-                    })
-                    this.$toast('更新成功')
-                } else {
-                    this.$toast(message)
-                }
-           } catch (error) {
-               this.toast('异常错误', { error, vm: this, line: 409 })
-           }
-        },
+        // // 更新端口状态
+        // async updatePortStatus () {
+        //    try {
+        //         const { code, message, portlist } = await queryAddrAllPortStatus({
+        //             code: this.code,
+        //             addr: this.addrnum,
+        //             nowtime: this.nowtime
+        //         })
+        //         if (code === 200) {
+        //             this.portList = this.portList.map(item => {
+        //                 item.portStatus = portlist[item.port]
+        //                 return item
+        //             })
+        //             this.$toast('更新成功')
+        //         } else {
+        //             this.$toast(message)
+        //         }
+        //    } catch (error) {
+        //        this.toast('异常错误', { error, vm: this, line: 409 })
+        //    }
+        // },
         // 判断钱包余额，如果大于指定值，则默认选中钱包
         selectWalletByBalance () {
             const balance = this.touristsendbalance + this.tourtopupbalance

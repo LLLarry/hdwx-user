@@ -196,3 +196,18 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
         loadText
     })
 }
+
+/**
+ * 更新端口状态
+ * @param {*} data {  code: String }
+ * @param {*} loadText
+ * @returns
+ */
+ export const portstate1 = (data, loadText) => {
+    return ajax({
+        url: '/portstate1',
+        data,
+        method: 'post',
+        loadText
+    })
+}

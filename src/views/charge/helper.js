@@ -75,7 +75,7 @@ export const createPortStatusByHV = (portStatus, hardversion) => {
         '06': 20,
         '07': 1,
         '08': 10,
-        '09': 16,
+        '09': 2,
         10: 20,
         11: 2
     }

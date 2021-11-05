@@ -2,12 +2,21 @@
     <div>
         <div class="padding-x-3 d-flex justify-content-between align-items-center p-title">
             <div class="text-size-default">请选择充电插座</div>
-            <!-- <ul class="port-status d-flex justify-content-end">
-                <li class="port-status-item d-flex justify-content-end align-items-center margin-right-2" v-for="num in 3" :key="num">
-                    <div class="port-status-color d-inline-block margin-right-1" :class="[num == 2 ? 'use' : (num == 3 || num == 4) ? 'fi' : '']"></div>
-                    <div class="port-status-text text-999">{{num == 2 ? '占用' : num == 3 ? '故障' : '空闲'}}</div>
-                </li>
-            </ul> -->
+            <div class="d-flex align-items-center text-p">
+                <span>更新端口状态</span>
+                <!-- <van-icon name="replay" class="text-success padding-x-1" size="0.45rem" /> -->
+                <van-popover v-model="showPopover" trigger="click" class="d-flex align-items-center" overlay>
+                    <div class="text-size-sm text-666 padding-3">
+                        由于网络延迟等原因，可能导致端口状态与实际不符，请点击下方更新按钮，获取最新端口状态
+                        <div class="text-center margin-top-2">
+                            <van-button type="primary" icon="replay" size="mini" @click="updatePortStatusFn">更新端口状态</van-button>
+                        </div>
+                    </div>
+                    <template #reference>
+                        <van-icon name="question-o" class="text-success margin-left-1" size="0.5rem" />
+                    </template>
+                </van-popover>
+            </div>
         </div>
         <ul class="port-content d-flex flex-wrap padding-x-3 padding-y-3" v-if="list !== null && list.length > 0">
             <li
@@ -41,6 +50,7 @@
 
 <script>
 import { getType } from '@/utils/util'
+import { portstate1, queryAddrAllPortStatus } from '@/require/charge'
 export default {
     props: {
         list: { // 端口列表
@@ -50,6 +60,16 @@ export default {
         selectPort: { // 选择的端口
             type: Number,
             default: -1
+        },
+        nowtime: {
+            type: [Number, String]
+        }
+    },
+    data () {
+        return {
+            showPopover: false,
+            code: this.$route.query.code,
+            addrnum: this.$route.query.addrnum
         }
     },
     computed: {
@@ -64,6 +84,58 @@ export default {
         // 选择端口
         handleSelectPort (item) {
             this.$emit('selectPortBack', { ...item, port: Number(item.port), portStatus: Number(item.portStatus) })
+        },
+        updatePortStatusFn () {
+            if (this.addrnum) {
+                this.updatePortStatusForAddr()
+            } else {
+                this.updatePortStatus()
+            }
+        },
+        // 更新端口状态 v2 v3 设备
+        async updatePortStatus () {
+            try {
+                const portList = JSON.parse(JSON.stringify(this.$parent.$data.portList))
+                const regexp = /^param(\d+)$/
+                const code = this.$route.query.code
+                this.showPopover = false
+                const map = await portstate1({ code }, '状态更新中')
+                for (const [key, value] of Object.entries(map)) {
+                    if (regexp.test(key)) {
+                        const port = key.match(regexp)[1]
+                        const row = portList.find(item => Number.parseInt(item.port) === Number.parseInt(port))
+                        if (row) {
+                            row.portStatus = value === '空闲' ? 1 : value === '使用' ? 2 : value === '故障' ? 3 : 1
+                        }
+                    }
+                }
+                this.$parent.$data.portList = portList
+            } catch (error) {
+                this.toast('异常错误', 'fail')
+            }
+        },
+        // 更新端口状态 (一拖二设备)
+        async updatePortStatusForAddr () {
+           try {
+                this.showPopover = false
+                const { code, message, portlist } = await queryAddrAllPortStatus({
+                    code: this.code,
+                    addr: this.addrnum,
+                    nowtime: this.nowtime
+                })
+                if (code === 200) {
+                    const portList = JSON.parse(JSON.stringify(this.$parent.$data.portList))
+                    this.$parent.$data.portList = portList.map(item => {
+                        item.portStatus = portlist[item.port]
+                        return item
+                    })
+                    this.$toast('更新成功')
+                } else {
+                    this.$toast(message)
+                }
+           } catch (error) {
+               this.toast('异常错误', { error, vm: this, line: 409 })
+           }
         }
     }
 }
