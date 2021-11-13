@@ -50,7 +50,7 @@
 
 <script>
 import { getType } from '@/utils/util'
-import { portstate1, queryAddrAllPortStatus } from '@/require/charge'
+import { updatePortStatusHook } from '@/views/charge/helper'
 export default {
     props: {
         list: { // 端口列表
@@ -95,47 +95,71 @@ export default {
         // 更新端口状态 v2 v3 设备
         async updatePortStatus () {
             try {
-                const portList = JSON.parse(JSON.stringify(this.$parent.$data.portList))
-                const regexp = /^param(\d+)$/
-                const code = this.$route.query.code
-                this.showPopover = false
-                const map = await portstate1({ code }, '状态更新中')
-                for (const [key, value] of Object.entries(map)) {
-                    if (regexp.test(key)) {
-                        const port = key.match(regexp)[1]
-                        const row = portList.find(item => Number.parseInt(item.port) === Number.parseInt(port))
-                        if (row) {
-                            row.portStatus = value === '空闲' ? 1 : value === '使用' ? 2 : value === '故障' ? 3 : 1
-                        }
-                    }
-                }
+                let portList = JSON.parse(JSON.stringify(this.$parent.$data.portList))
+                const map = await updatePortStatusHook({ code: this.code }, false)
+                portList = portList.map(portItem => ({ ...portItem, portStatus: map[portItem.port] }))
                 this.$parent.$data.portList = portList
             } catch (error) {
-                this.toast('异常错误', 'fail')
+                this.toast(error, 'fail')
+            } finally {
+                this.showPopover = false
             }
+            // try {
+            //     const portList = JSON.parse(JSON.stringify(this.$parent.$data.portList))
+            //     const regexp = /^param(\d+)$/
+            //     const code = this.$route.query.code
+            //     this.showPopover = false
+            //     const map = await portstate1({ code }, '状态更新中')
+            //     for (const [key, value] of Object.entries(map)) {
+            //         if (regexp.test(key)) {
+            //             const port = key.match(regexp)[1]
+            //             const row = portList.find(item => Number.parseInt(item.port) === Number.parseInt(port))
+            //             if (row) {
+            //                 row.portStatus = value === '空闲' ? 1 : value === '使用' ? 2 : value === '故障' ? 3 : 1
+            //             }
+            //         }
+            //     }
+            //     this.$parent.$data.portList = portList
+            // } catch (error) {
+            //     this.toast('异常错误', 'fail')
+            // }
         },
         // 更新端口状态 (一拖二设备)
         async updatePortStatusForAddr () {
-           try {
-                this.showPopover = false
-                const { code, message, portlist } = await queryAddrAllPortStatus({
+            try {
+                let portList = JSON.parse(JSON.stringify(this.$parent.$data.portList))
+                const map = await updatePortStatusHook({
                     code: this.code,
                     addr: this.addrnum,
                     nowtime: this.nowtime
-                })
-                if (code === 200) {
-                    const portList = JSON.parse(JSON.stringify(this.$parent.$data.portList))
-                    this.$parent.$data.portList = portList.map(item => {
-                        item.portStatus = portlist[item.port]
-                        return item
-                    })
-                    this.$toast('更新成功')
-                } else {
-                    this.$toast(message)
-                }
-           } catch (error) {
-               this.toast('异常错误', { error, vm: this, line: 409 })
-           }
+                }, true)
+                portList = portList.map(portItem => ({ ...portItem, portStatus: map[portItem.port] }))
+                this.$parent.$data.portList = portList
+            } catch (error) {
+                this.toast(error, 'fail')
+            } finally {
+                this.showPopover = false
+            }
+        //    try {
+        //         this.showPopover = false
+        //         const { code, message, portlist } = await queryAddrAllPortStatus({
+        //             code: this.code,
+        //             addr: this.addrnum,
+        //             nowtime: this.nowtime
+        //         })
+        //         if (code === 200) {
+        //             const portList = JSON.parse(JSON.stringify(this.$parent.$data.portList))
+        //             this.$parent.$data.portList = portList.map(item => {
+        //                 item.portStatus = portlist[item.port]
+        //                 return item
+        //             })
+        //             this.$toast('更新成功')
+        //         } else {
+        //             this.$toast(message)
+        //         }
+        //    } catch (error) {
+        //        this.toast('异常错误', { error, vm: this, line: 409 })
+        //    }
         }
     }
 }

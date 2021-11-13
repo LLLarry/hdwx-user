@@ -72,7 +72,7 @@ import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
 import walletList from '@/components/charge/wallet-list'
 import { verification, fmtMoney } from '@/utils/util'
 import { deviceCharge, walletChargePay } from '@/require/charge'
-import { wxPayFun, verifiUserIfCharge, moneylyPayFun } from '../helper.js'
+import { wxPayFun, verifiUserIfCharge, moneylyPayFun, updatePortStatusHook } from '../helper.js'
 export default {
     components: {
         Header,
@@ -331,11 +331,47 @@ export default {
                 code: this.code
             })
         },
-        checkPortStatus (portList) {
+        async checkPortStatus (portList) {
             portList = Array.isArray(portList) ? portList : []
             const portItem = portList.find(item => this.selectPort === Number(item.port))
             if (portItem) {
                 const portStatus = Number(portItem.portStatus)
+                if (portStatus !== 1) {
+                    await this.updatePortStatus()
+                }
+                // if (portStatus === 3 || portStatus === 4) { // 故障端口
+                //     this.alert('此端口为故障端口，请更换端口使用').then(res => {
+                //         wx.closeWindow()
+                //     })
+                // } else if (portStatus === 2) { // 使用端口
+                //     // 检验当前使用端口能否作为本人续充端口使用
+                //     verifiUserIfCharge({
+                //         openid: this.openid,
+                //         code: this.code,
+                //         port: this.selectPort
+                //     })
+                //     .then(orderid => {
+                //         if (orderid) { // 判断orderid是否存在
+                //             this.orderid = orderid
+                //         }
+                //     }).catch(e => {
+                //         // 当前端口不支持续充
+                //        this.alert(e).then(() => {
+                //            wx.closeWindow()
+                //        })
+                //     })
+                // }
+            } else {
+                // this.alert('未查询到端口状态').then(res => {
+                //     wx.closeWindow()
+                // })
+            }
+        },
+        // 更新端口状态
+        async updatePortStatus () {
+            try {
+                const map = await updatePortStatusHook({ code: this.code }, false)
+                const portStatus = map[this.selectPort]
                 if (portStatus === 3 || portStatus === 4) { // 故障端口
                     this.alert('此端口为故障端口，请更换端口使用').then(res => {
                         wx.closeWindow()
@@ -358,10 +394,12 @@ export default {
                        })
                     })
                 }
-            } else {
-                // this.alert('未查询到端口状态').then(res => {
-                //     wx.closeWindow()
-                // })
+            } catch (error) {
+                this.alert(error).then(() => {
+                    wx.closeWindow()
+                })
+            } finally {
+
             }
         }
     }

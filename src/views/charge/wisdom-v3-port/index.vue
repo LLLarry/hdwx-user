@@ -54,7 +54,7 @@ import walletList from '@/components/charge/wallet-list'
 import { verification, fmtMoney, getType } from '@/utils/util'
 import { deviceCharge, walletChargePay } from '@/require/charge'
 import ChargeV3Contral from '@/components/charge/charge-v3-contral'
-import { wxPayFun, /* verifiUserIfCharge, */moneylyPayFun } from '../helper.js'
+import { wxPayFun, /* verifiUserIfCharge, */moneylyPayFun, updatePortStatusHook } from '../helper.js'
 export default {
     components: {
         Header,
@@ -353,11 +353,25 @@ export default {
                 code: this.code
             })
         },
-        checkPortStatus (portList) {
+        async checkPortStatus (portList) {
             portList = Array.isArray(portList) ? portList : []
             const portItem = portList.find(item => this.selectPort === Number(item.port))
             if (portItem) {
                 const portStatus = Number(portItem.portStatus)
+                if (portStatus !== 1) {
+                    await this.updatePortStatus()
+                }
+            } else {
+                // this.alert('未查询到端口状态').then(res => {
+                //     wx.closeWindow()
+                // })
+            }
+        },
+        // 更新端口状态
+        async updatePortStatus () {
+            try {
+                const map = await updatePortStatusHook({ code: this.code }, false)
+                const portStatus = map[this.selectPort]
                 if (portStatus === 3 || portStatus === 4) { // 故障端口
                     this.alert('此端口为故障端口，请更换端口使用').then(res => {
                         wx.closeWindow()
@@ -384,10 +398,12 @@ export default {
                     //    })
                     // })
                 }
-            } else {
-                // this.alert('未查询到端口状态').then(res => {
-                //     wx.closeWindow()
-                // })
+            } catch (error) {
+                this.alert(error).then(() => {
+                    wx.closeWindow()
+                })
+            } finally {
+
             }
         },
         // 判断钱包余额，如果大于指定值，则默认选中钱包
