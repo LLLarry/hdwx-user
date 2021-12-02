@@ -299,7 +299,8 @@ export default {
                 tempid: this.selectTempId,
                 port: this.selectPort,
                 openid: this.openid,
-                code: this.code
+                code: this.code,
+                ifcontinue: this.orderid
             })
         },
         // 钱包支付

@@ -211,3 +211,17 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
         loadText
     })
 }
+
+/**
+ * 测试加密信息
+ * @param {*} data
+ * @param {*} loadText
+ * @returns
+ */
+ export const chargepayTest = (data, loadText) => {
+    return ajax({
+        url: '/wxpay/chargepayTest',
+        params: data,
+        loadText
+    })
+}

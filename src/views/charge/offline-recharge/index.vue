@@ -188,7 +188,7 @@ export default {
 
 <style lang="scss">
 .charge-icon {
-    padding-top: 90px;
+    /* padding-top: 90px; */
     .hd-title {
         div {
             color: #333;

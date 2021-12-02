@@ -62,6 +62,12 @@ const routes = [
     path: '/offline',
     name: 'offline-recharge',
     component: () => import(/* webpackChunkName: "offline-recharge" */ '../views/charge/offline-recharge/index.vue')
+  },
+  // 支付测试
+  {
+    path: '/paytest',
+    name: 'paytest',
+    component: () => import(/* webpackChunkName: "paytest" */ '../views/About.vue')
   }
 ]
 

@@ -97,10 +97,16 @@ export default {
             try {
                 let portList = JSON.parse(JSON.stringify(this.$parent.$data.portList))
                 const map = await updatePortStatusHook({ code: this.code }, false)
-                portList = portList.map(portItem => ({ ...portItem, portStatus: map[portItem.port] }))
+                portList = portList.map(portItem => ({
+                    ...portItem,
+                    portStatus: typeof map[portItem.port] === 'undefined' ? portItem.portStatus : map[portItem.port]
+                }))
                 this.$parent.$data.portList = portList
             } catch (error) {
-                this.toast(error, 'fail')
+                this.alert(error.message, '提示')
+                .then(res => {
+                    wx.closeWindow()
+                })
             } finally {
                 this.showPopover = false
             }
@@ -136,7 +142,7 @@ export default {
                 portList = portList.map(portItem => ({ ...portItem, portStatus: map[portItem.port] }))
                 this.$parent.$data.portList = portList
             } catch (error) {
-                this.toast(error, 'fail')
+                this.toast('异常错误', 'fail')
             } finally {
                 this.showPopover = false
             }

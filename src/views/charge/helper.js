@@ -112,19 +112,22 @@ function updatePortStatusForNormal (data) {
         try {
             portstate1(data, '状态更新中')
             .then(map => {
+                if (map.state === 'error') return reject(new Error('连接失败，请确认设备是否在线'))
                 const portlist = {}
                 const regexp = /^param(\d+)$/
                 for (const [key, value] of Object.entries(map)) {
                     if (regexp.test(key)) {
                         const port = key.match(regexp)[1]
-                        const portStatus = value === '空闲' ? 1 : value === '使用' ? 2 : value === '故障' ? 3 : 1
-                        portlist[port] = portStatus
+                        const portStatus = value === '空闲' ? 1 : value === '使用' ? 2 : value === '故障' ? 3 : -1
+                        if (portStatus > 0) {
+                            portlist[port] = portStatus
+                        }
                     }
                 }
                 resolve(portlist)
             })
-            .catch(err => {
-                reject(err)
+            .catch(() => {
+                reject(new Error('异常错误'))
             })
         } catch (error) {
             reject(new Error('异常错误'))

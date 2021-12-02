@@ -372,7 +372,11 @@ export default {
             try {
                 const map = await updatePortStatusHook({ code: this.code }, false)
                 const portStatus = map[this.selectPort]
-                if (portStatus === 3 || portStatus === 4) { // 故障端口
+                if (typeof portStatus === 'undefined') {
+                    this.alert('对不起，未获取到端口状态').then(res => {
+                        wx.closeWindow()
+                    })
+                } else if (portStatus === 3 || portStatus === 4) { // 故障端口
                     this.alert('此端口为故障端口，请更换端口使用').then(res => {
                         wx.closeWindow()
                     })
@@ -399,8 +403,8 @@ export default {
                     // })
                 }
             } catch (error) {
-                this.alert(error).then(() => {
-                    wx.closeWindow()
+                this.alert(error.message).then(() => {
+                   wx.closeWindow()
                 })
             } finally {
 
