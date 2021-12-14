@@ -34,7 +34,7 @@
                 </div>
                 <van-tabs v-if="temporaryc === 1" v-model="chageType" type="card" color="#07c160" title-inactive-color="#666666">
                     <van-tab :title-style="{ fontSize: '0.32rem' }">
-                        <template #title> 按时间付费 </template>
+                        <template #title> 按时间付费<span style="font-size: 0.28rem;">（会员充电）</span> </template>
                          <!-- 选择按时间付费模板列表 -->
                         <div class="padding-x-3 margin-top-3">
                             <select-temp :list="templateTimelist" :selectId="selectTimeTempId" type="time" @selectChargeTemp="selectChargeTemp" />

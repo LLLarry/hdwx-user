@@ -106,7 +106,7 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  */
  export const monthPayUse = (data, loadText) => {
     return ajax({
-        url: '/general/allowMonthPayUse',
+        url: '/general/monthChargePay',
         params: data,
         loadText
     })
