@@ -142,7 +142,7 @@ export default {
                 portList = portList.map(portItem => ({ ...portItem, portStatus: map[portItem.port] }))
                 this.$parent.$data.portList = portList
             } catch (error) {
-                this.toast('异常错误', 'fail')
+                this.toast(error, 'fail')
             } finally {
                 this.showPopover = false
             }

@@ -52,7 +52,7 @@ import chargeOverlay from '@/components/charge/charge-overlay'
 import { paytypeMap } from '@/components/charge/select-paytype'
 import walletList from '@/components/charge/wallet-list'
 import { verification, fmtMoney, getType } from '@/utils/util'
-import { deviceCharge, walletChargePay } from '@/require/charge'
+import { deviceCharge, walletChargePay, removeClient } from '@/require/charge'
 import ChargeV3Contral from '@/components/charge/charge-v3-contral'
 import { wxPayFun, /* verifiUserIfCharge, */moneylyPayFun, updatePortStatusHook } from '../helper.js'
 export default {
@@ -403,8 +403,12 @@ export default {
                     // })
                 }
             } catch (error) {
-                this.alert(error.message).then(() => {
-                   wx.closeWindow()
+                this.alert(`${error.message}，请稍后重试！`).then(() => {
+                   // 断开设备连接
+                   removeClient({ code: this.code })
+                   setTimeout(() => {
+                       wx.closeWindow()
+                   }, 300)
                 })
             } finally {
 

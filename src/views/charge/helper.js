@@ -64,7 +64,7 @@ export const moneylyPayFun = async (data) => {
  * @returns List
  */
 export const createPortStatusByHV = (portStatus, hardversion) => {
-    if (Array.isArray(portStatus) && portStatus.length) return portStatus
+    if (Array.isArray(portStatus) && portStatus.length) return filterNull(portStatus)
     // map 硬件版本号对应端口数
     const map = {
         '00': 10,
@@ -77,7 +77,8 @@ export const createPortStatusByHV = (portStatus, hardversion) => {
         '08': 10,
         '09': 2,
         10: 20,
-        11: 2
+        11: 2,
+        12: 2
     }
     const portNum = map[hardversion]
     const portList = []
@@ -87,7 +88,12 @@ export const createPortStatusByHV = (portStatus, hardversion) => {
             portStatus: 1
         })
     }
-    return portList
+    return filterNull(portList)
+
+    // 过滤端口状态为null的情况
+    function filterNull (list) {
+        return list.filter(one => !!one)
+    }
 }
 
 /**

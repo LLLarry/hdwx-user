@@ -225,3 +225,18 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
         loadText
     })
 }
+
+/**
+ * 断开设备连接
+ * @param {*} data { code: 设备号 }
+ * @param {*} loadText
+ * @returns
+ */
+ export const removeClient = (data, loadText) => {
+    return ajax({
+        url: '/general/removeClient',
+        data,
+        method: 'post',
+        loadText
+    })
+}
