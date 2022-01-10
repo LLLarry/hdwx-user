@@ -17,6 +17,7 @@ export default (function (global) {
         ENV: env, // 当前环境
         BASE_URL: env === 'production' ? 'http://www.he360.cn' : env === 'production-test' ? 'http://www.tengfuchong.com.cn' : proxy.open ? '' : 'http://localhost', // 请求的基础路径
         WX_APPID: env === 'production' ? production.wx_appid : env === 'production-test' ? productionTest.wx_appid : proxy.open ? (checkEnvironment(proxy.target) === 'production' ? production.wx_appid : productionTest.wx_appid) : productionTest.wx_appid, // 微信appid
-        WECHAT_BROWSER_ENV: navigator.userAgent.toLowerCase().indexOf('micromessenger') !== -1 // 是否是微信浏览器环境
+        WECHAT_BROWSER_ENV: navigator.userAgent.toLowerCase().indexOf('micromessenger') !== -1, // 是否是微信浏览器环境
+        PROXY_BASE_URL: env === 'production' ? 'http://www.he360.cn' : env === 'production-test' ? 'http://www.tengfuchong.com.cn' : proxy.open ? proxy.target : 'http://localhost' // 代理请求的基础路径 适用于在本地开启代理模式时，需要使用正式的路径
     }
 })(window)

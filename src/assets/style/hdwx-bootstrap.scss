@@ -20,22 +20,27 @@
 }
 .text-success {
     /* color: #28a745 !important; */
-    color: #07c160 !important;
+    /* color: #07c160 !important; */
+    color: $success;
 }
 .text-success-deep {
-  color: #28a745 !important;
+  // color: #28a745 !important;
+  color: $success !important;
 }
 .text-warning {
-    color: #ffc107 !important;
+    color: $warning !important;
 }
 .text-danger {
-    color: #ee0a24 !important;
+    color: $danger !important;
 }
 .text-info {
-    color: #17a2b8 !important;
+    color: $info !important;
 }
 .text-primary {
-    color: #1989fa !important;
+    color: $primary !important;
+}
+.text-a {
+  color: #666a85;
 }
 .text-000 {
   color: #000000;
@@ -102,19 +107,19 @@
 
 
 .bg-success {
-    background-color: #28a745 !important;
+    background-color: $success !important;
 }
 .bg-warning {
-    background-color: #ffc107 !important;
+    background-color: $warning !important;
 }
 .bg-danger {
-    background-color: #dc3545 !important;
+    background-color: $danger !important;
 }
 .bg-info {
-    background-color: #17a2b8 !important;
+    background-color: $info !important;
 }
 .bg-primary {
-    background-color: rgb(16, 142, 233) !important;
+    background-color: $primary !important;
 }
 .bg-white {
    background-color: #FFFFFF !important;
@@ -124,6 +129,10 @@
 }
 .bg-gray {
   background-color: #f5f7fa !important;
+}
+
+.bg-f6 {
+  background-color: #f6f6f6 !important;
 }
 
 /* 3、边框类*/ 
@@ -751,4 +760,28 @@ flex: 8;
 
 .border-box {
   box-sizing: border-box;
+}
+.text-ellipsis {
+  @include text-ellipsis;
+}
+
+.line-height {
+  line-height: 1;
+}
+.line-height-2 {
+  line-height: 1.2;
+}
+.line-height-4 {
+  line-height: 1.4;
+}
+.line-height-6 {
+  line-height: 1.6;
+}
+.line-height-8 {
+  line-height: 1.8;
+}
+
+/* 固定到底部 */
+.fixed-bottom {
+  @include fixed-bottom;
 }

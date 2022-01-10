@@ -1,0 +1,19 @@
+/* 定义变量 */
+// $success: #66AD69;
+$success: #28a745;
+$success-1: #07c160;
+$success-2: #28a745;
+$warning: #ffc107;
+$danger: #dc3545;
+$info: #17a2b8;
+$primary: #1989fa;
+
+:export {
+  success: $success;
+  success1: $success-1;
+  success2: $success-2;
+  warning: $warning;
+  danger: $danger;
+  info: $info;
+  primary: $primary;
+}

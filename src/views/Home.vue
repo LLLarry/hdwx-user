@@ -9,9 +9,9 @@
 export default {
   name: 'Home',
   mounted () {
-    throw new Error(`into Home Page
-    浏览器： ${window.navigator.userAgent}
-    `)
+    // throw new Error(`into Home Page
+    // 浏览器： ${window.navigator.userAgent}
+    // `)
   }
 }
 </script>

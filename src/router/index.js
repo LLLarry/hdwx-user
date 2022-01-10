@@ -64,10 +64,51 @@ const routes = [
     component: () => import(/* webpackChunkName: "offline-recharge" */ '../views/charge/offline-recharge/index.vue')
   },
   // 支付测试
+  // {
+  //   path: '/paytest',
+  //   name: 'paytest',
+  //   component: () => import(/* webpackChunkName: "paytest" */ '../views/About.vue')
+  // },
   {
-    path: '/paytest',
-    name: 'paytest',
-    component: () => import(/* webpackChunkName: "paytest" */ '../views/About.vue')
+    path: '/personalCenter',
+    name: 'personal-center',
+    component: () => import(/* webpackChunkName: "personal-center" */ '../views/personal-center/index.vue'),
+    meta: {
+      title: '个人中心',
+      tabbar: true
+    }
+  },
+  {
+    path: '/personalCenter/walletlist',
+    name: 'wallet-list',
+    component: () => import(/* webpackChunkName: "wallet-list" */ '../views/personal-center/wallet-list/index.vue'),
+    meta: {
+      title: '钱包列表'
+    }
+  },
+  {
+    path: '/personalCenter/walletdetail/:id',
+    name: 'wallet-detail',
+    component: () => import(/* webpackChunkName: "wallet-detail" */ '../views/personal-center/wallet-detail/index.vue'),
+    meta: {
+      title: '钱包详情'
+    }
+  },
+  {
+    path: '/personalCenter/icmanage',
+    name: 'ic-manage',
+    component: () => import(/* webpackChunkName: "ic-manage" */ '../views/personal-center/ic-manage/index.vue'),
+    meta: {
+      title: 'IC卡管理'
+    }
+  },
+  {
+    path: '/personalCenter/nearbydevice',
+    name: 'nearby-device',
+    component: () => import(/* webpackChunkName: "nearby-device" */ '../views/personal-center/nearby-device/index.vue'),
+    meta: {
+      title: 'IC卡管理'
+    }
   }
 ]
 

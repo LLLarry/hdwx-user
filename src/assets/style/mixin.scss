@@ -1,0 +1,25 @@
+@mixin m-h-100 {
+  min-height: 100vh;
+}
+
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin text-ellipsis {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+@mixin fixed-bottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 50px;
+  box-shadow: 0 -2px 12px rgba(100, 101, 102, 0.12);
+  background-color: #fff;
+}

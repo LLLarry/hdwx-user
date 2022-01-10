@@ -1,11 +1,33 @@
 <template>
   <div id="app" class="text-size-md text-333">
-    <router-view />
+    <router-view v-slot="Component">
+      <component :is="Component" />
+    </router-view>
+    <!-- 底部菜单 -->
+    <van-tabbar
+      v-if="tabbarIsShow"
+      v-model="active"
+      :active-color="cssVar.success"
+      inactive-color="#666"
+      route
+    >
+      <van-tabbar-item icon="home-o">标签</van-tabbar-item>
+      <van-tabbar-item icon="search">标签</van-tabbar-item>
+      <van-tabbar-item icon="friends-o">标签</van-tabbar-item>
+      <van-tabbar-item icon="setting-o" replace to="/personalCenter">个人中心</van-tabbar-item>
+    </van-tabbar>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
+  data () {
+    return {
+      active: '',
+      tabbarIsShow: false
+    }
+  },
   beforeMount () {
     /* 在页面挂载之前删除加载loading */
     const loadingBox = document.querySelector('.loading-box')
@@ -13,15 +35,24 @@ export default {
       loadingBox.parentNode.removeChild(loadingBox)
     }
   },
-  mounted () {
-    document.addEventListener('touchstart', function () {})
+  computed: {
+    ...mapGetters(['cssVar'])
+  },
+  watch: {
+    $route: {
+      handler (route) {
+        this.tabbarIsShow = !!route.meta.tabbar
+        this.active = route.path
+      },
+      immediate: true
+    }
   }
 }
 </script>
 
 <style lang="scss">
 @import './assets/style/base.css';
-@import './assets/style/hdwx-bootstrap.css';
+@import './assets/style/hdwx-bootstrap.scss';
 // @import './assets/style/iconfont.css';
 @import './assets/style/animate.css';
 @font-face {
