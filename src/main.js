@@ -1,14 +1,20 @@
+// 初始化全局变量
+import '@/utils/global'
 import 'amfe-flexible'
 // 监听页面尺寸变化，重置html字体大小
 import '@/assets/js/reset-font-size'
-// 初始化全局变量
-import '@/utils/global'
 // 封装vant的辅助函数
 import '@/assets/js/vant-helper'
 // 封装异常捕获辅助函数
 import '@/assets/js/error-helper'
+// 引入mock
+import '@/assets/js/mock'
+// 引入pofilly
+import '@/assets/js/pofilly'
 // 引入全局过滤器
 import '@/filter'
+// 引入全局指令
+import '@/directive'
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
@@ -21,10 +27,36 @@ import VueCompositionAPI from '@vue/composition-api'
 import VueMeta from 'vue-meta'
 import bus from '@/utils/bus'
 import qrcode from 'vue-qrcode2'
+import Navigation from 'vue-navigation'
 import {
-  Button, Icon, Dialog, Overlay, Loading, Toast, Popup, Switch, Tab, Tabs, CouponCell, CouponList,
-  Collapse, CollapseItem, Popover, Field, Tabbar, TabbarItem,
-  Image as VanImage, Grid, GridItem, NavBar, Tag, Form, RadioGroup, Radio
+  Button,
+  Icon,
+  Dialog,
+  Overlay,
+  Loading,
+  Toast,
+  Popup,
+  Switch,
+  Tab,
+  Tabs,
+  CouponCell,
+  CouponList,
+  Collapse,
+  CollapseItem,
+  Popover,
+  Field,
+  Tabbar,
+  TabbarItem,
+  Image as VanImage,
+  Grid,
+  GridItem,
+  NavBar,
+  Tag,
+  Form,
+  RadioGroup,
+  Radio,
+  Calendar,
+  Search
 } from 'vant'
 
 // 解决 vue当页面应用在ios微信中，使用wxsdk, wx.config报错
@@ -63,6 +95,8 @@ Vue.use(Form)
 Vue.use(Field)
 Vue.use(RadioGroup)
 Vue.use(Radio)
+Vue.use(Calendar)
+Vue.use(Search)
 
 Vue.config.productionTip = false
 Vue.component('hd-line', HdLine)
@@ -70,11 +104,12 @@ Vue.component('hd-title', HdTitle)
 Vue.component('hd-icon', HdIcon)
 Vue.use(VueCompositionAPI)
 Vue.use(qrcode)
+Vue.use(Navigation, { router, store })
 Vue.mixin({
-  metaInfo () {
-      return {
-          title: this.titleText || this.$route.meta.title
-      }
+  metaInfo() {
+    return {
+      title: this.titleText || this.$route.meta.title
+    }
   }
 })
 

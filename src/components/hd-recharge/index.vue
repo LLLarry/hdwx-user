@@ -1,15 +1,29 @@
 <template>
   <div class="hd-recharge">
     <h3 class="text-center text-size-sm text-p">
-      <div class="d-inline-block position-relative">请点击以下金额充值</div>
+      <div class="d-inline-block position-relative">{{ tip }}</div>
     </h3>
     <ul class="recharge-wrapper d-flex flex-wrap margin-top-3">
-      <li class="recharge-li margin-bottom-2" v-for="item in 5" :key="item">
-        <div class="recharge-box bg-gray rounded-md padding-x-1 padding-y-2 text-center">
+      <li
+        class="recharge-li margin-bottom-2"
+        v-for="item in tempList"
+        :key="item.id"
+        @click="handleRecharge(item)"
+      >
+        <div
+          class="recharge-box bg-gray rounded-md padding-x-1 padding-y-2 text-center"
+        >
           <div class="text-success text-size-sm">
-            <span class="font-weight-bold text-size-default">2.00</span>元
+            <slot :row="item">
+              <span class="font-weight-bold text-size-default">{{
+                item.toAccountMoney | fmtMoney
+              }}</span
+              >元
+            </slot>
           </div>
-          <div class="text-size-sm margin-top-1 text-p">售价2.00元</div>
+          <div class="text-size-sm margin-top-1 text-p">
+            售价{{ item.paymoney | fmtMoney }}元
+          </div>
         </div>
       </li>
     </ul>
@@ -17,9 +31,48 @@
 </template>
 
 <script>
-export default {
-
-}
+import { defineComponent } from '@vue/composition-api'
+import wxpay from '@/utils/wxUtil/wxpay'
+export default defineComponent({
+  props: {
+    tip: {
+      type: String,
+      default: '请点击以下金额充值'
+    },
+    tempList: {
+      type: Array,
+      default: () => []
+    },
+    getWXConfig: {
+      type: Function
+    },
+    onSuccess: {
+      type: Function
+    }
+  },
+  setup(props, { root }) {
+    const handleRecharge = async value => {
+      try {
+        // 获取微信配置信息
+        const config = await props.getWXConfig(value)
+        wxpay(config)
+          .then(res => {
+            root.alert(res).then(() => {
+              props.onSuccess && props.onSuccess()
+            })
+          })
+          .catch(err => {
+            root.alert(err)
+          })
+      } catch (e) {
+        root.toast(e)
+      }
+    }
+    return {
+      handleRecharge
+    }
+  }
+})
 </script>
 
 <style lang="scss" scoped>

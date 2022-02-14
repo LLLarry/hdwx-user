@@ -35,6 +35,26 @@ export const getType = (e) => {
 }
 
 /**
+ * 日期范围
+ * @param {Date} date 起始日期
+ * @param {Number} day 推迟天数
+ * @returns [Date, Date] 日期数组
+ */
+ export const dateRange = (date, day = 0, type = 'YYYY-MM-DD HH:mm:ss') => {
+    date = new Date(date)
+    const times = date.getTime()
+    if (Number.isNaN(times)) {
+        throw TypeError('date argument is not Date type')
+    }
+    const newTimes = times - day * 24 * 60 * 60 * 1000
+    if (times < newTimes) {
+        return [fmtDate(new Date(times), type), fmtDate(new Date(newTimes), type)]
+    } else {
+        return [fmtDate(new Date(newTimes), type), fmtDate(new Date(times), type)]
+    }
+}
+
+/**
  * 检验辅助函数
  * @param {Array} list // 检验列表
  * @returns 所有项都成功返回true，否则返回false

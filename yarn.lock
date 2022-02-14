@@ -9156,6 +9156,11 @@ vue-meta@^2.4.0:
   dependencies:
     deepmerge "^4.2.2"
 
+vue-navigation@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.npm.taobao.org/vue-navigation/download/vue-navigation-1.1.4.tgz#be990190624647daa34b8cd525fad4fb6d472542"
+  integrity sha1-vpkBkGJGR9qjS4zVJfrU+21HJUI=
+
 vue-qrcode2@^0.0.1:
   version "0.0.1"
   resolved "https://registry.npmmirror.com/vue-qrcode2/download/vue-qrcode2-0.0.1.tgz#cd5ec96c3bddc33e7335f42f05bf81091f55c425"

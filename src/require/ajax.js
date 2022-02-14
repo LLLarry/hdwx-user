@@ -8,25 +8,29 @@ const { BASE_URL } = HDWX_USER
 const api = process.env.NODE_ENV === 'production' ? '' : '/api'
 // const baseURL = process.env.NODE_ENV === 'production' ? 'http://www.tengfuchong.com.cn' : ''
 const server = axios.create({
-    timeout: 120000, // 请求超时时间
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-    },
-    // baseURL: HDWX.BASE_URL,
-    baseURL: BASE_URL,
-    withCredentials: true
+  timeout: 120000, // 请求超时时间
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+  },
+  // baseURL: HDWX.BASE_URL,
+  baseURL: BASE_URL,
+  withCredentials: true
 })
 
-server.interceptors.request.use(config => {
+server.interceptors.request.use(
+  config => {
     return {
-        ...config,
-        url: api + config.url
+      ...config,
+      url: api + config.url
     }
-}, error => {
+  },
+  error => {
     return Promise.reject(error)
-})
+  }
+)
 
-server.interceptors.response.use(response => {
+server.interceptors.response.use(
+  response => {
     // if (response.data.code === 90001) { // 缓存失效
     //     store.commit('resetState')
     //     Dialog.alert({
@@ -38,61 +42,71 @@ server.interceptors.response.use(response => {
     //         }
     //     })
     return response
-}, error => {
+  },
+  error => {
     return Promise.reject(error)
-})
+  }
+)
 
-export default ({ method = 'get', url = '', params = {}, data = {}, loadText = '正在加载中' } = {}) => {
-    const random = getRamdom()
-    if (method === 'get') {
-        return new Promise((resolve, reject) => {
-            if (loadText !== false) {
-                Vue.prototype.$showLoading({
-                    title: loadText,
-                    key: random
-                })
-            }
-            server.get(url, { params })
-            .then(({ status, data } = {}) => {
-                if (status === 200) {
-                    resolve(data)
-                } else {
-                    reject(new Error('请求异常'))
-                }
-            })
-            .catch(reason => {
-                reject(reason)
-            })
-            .finally(() => {
-                if (loadText !== false) {
-                    Vue.prototype.$cancelLoading(random)
-                }
-            })
+export default ({
+  method = 'get',
+  url = '',
+  params = {},
+  data = {},
+  loadText = '正在加载中'
+} = {}) => {
+  const random = getRamdom()
+  if (method === 'get') {
+    return new Promise((resolve, reject) => {
+      if (loadText !== false) {
+        Vue.prototype.$showLoading({
+          title: loadText,
+          key: random
         })
-    } else if (method === 'post') {
-        return new Promise((resolve, reject) => {
-            if (loadText !== false) {
-                Vue.prototype.$showLoading({
-                    title: loadText,
-                    key: random
-                })
-            }
-            server.post(url, Qs.stringify(data))
-            .then(({ status, data } = {}) => {
-                if (status === 200) {
-                    resolve(data)
-                } else {
-                    reject(new Error('请求异常'))
-                }
-            })
-            .catch(reason => {
-                reject(reason)
-            })
-            .finally(() => {
-                if (loadText !== false) {
-                    Vue.prototype.$cancelLoading(random)
-                }
-            })
+      }
+      server
+        .get(url, { params })
+        .then(({ status, data } = {}) => {
+          if (status === 200) {
+            resolve(data)
+          } else {
+            reject(new Error('请求异常'))
+          }
         })
-    }
+        .catch(reason => {
+          reject(reason)
+        })
+        .finally(() => {
+          if (loadText !== false) {
+            Vue.prototype.$cancelLoading(random)
+          }
+        })
+    })
+  } else if (method === 'post') {
+    return new Promise((resolve, reject) => {
+      if (loadText !== false) {
+        Vue.prototype.$showLoading({
+          title: loadText,
+          key: random
+        })
+      }
+      server
+        .post(url, Qs.stringify(data))
+        .then(({ status, data } = {}) => {
+          if (status === 200) {
+            resolve(data)
+          } else {
+            reject(new Error('请求异常'))
+          }
+        })
+        .catch(reason => {
+          reject(reason)
+        })
+        .finally(() => {
+          if (loadText !== false) {
+            Vue.prototype.$cancelLoading(random)
+          }
+        })
+    })
+  }
 }
