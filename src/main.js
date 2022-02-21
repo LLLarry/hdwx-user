@@ -56,7 +56,8 @@ import {
   RadioGroup,
   Radio,
   Calendar,
-  Search
+  Search,
+  Checkbox
 } from 'vant'
 
 // 解决 vue当页面应用在ios微信中，使用wxsdk, wx.config报错
@@ -97,6 +98,7 @@ Vue.use(RadioGroup)
 Vue.use(Radio)
 Vue.use(Calendar)
 Vue.use(Search)
+Vue.use(Checkbox)
 
 Vue.config.productionTip = false
 Vue.component('hd-line', HdLine)

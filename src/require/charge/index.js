@@ -7,11 +7,11 @@ import ajax from '../ajax'
  * @returns
  */
 export const getChargeDataByCodeAndOpenid = (data, loadText) => {
-    return ajax({
-        url: '/allowInterface/getDeviceDataForGeneral',
-        params: data,
-        loadText
-    })
+  return ajax({
+    url: '/allowInterface/getDeviceDataForGeneral',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -20,12 +20,12 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const inCoinsPay = (data, loadText) => {
-    return ajax({
-        url: '/wxpay/inCoinsPay',
-        params: data,
-        loadText
-    })
+export const inCoinsPay = (data, loadText) => {
+  return ajax({
+    url: '/wxpay/inCoinsPay',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -34,12 +34,12 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const inCoinsWalletPay = (data, loadText) => {
-    return ajax({
-        url: '/general/inCoinsWalletPay',
-        params: data,
-        loadText
-    })
+export const inCoinsWalletPay = (data, loadText) => {
+  return ajax({
+    url: '/general/inCoinsWalletPay',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -48,12 +48,12 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const deviceCharge = (data, loadText) => {
-    return ajax({
-        url: '/allowInterface/deviceCharge',
-        params: data,
-        loadText
-    })
+export const deviceCharge = (data, loadText) => {
+  return ajax({
+    url: '/allowInterface/deviceCharge',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -62,12 +62,12 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const chargepay = (data, loadText) => {
-    return ajax({
-        url: '/wxpay/chargepay',
-        params: data,
-        loadText
-    })
+export const chargepay = (data, loadText) => {
+  return ajax({
+    url: '/wxpay/chargepay',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -76,12 +76,12 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const walletChargePay = (data, loadText) => {
-    return ajax({
-        url: '/general/WalletChargePay',
-        params: data,
-        loadText
-    })
+export const walletChargePay = (data, loadText) => {
+  return ajax({
+    url: '/general/WalletChargePay',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -90,12 +90,12 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const checkUserIfCharge = (data, loadText) => {
-    return ajax({
-        url: '/allowInterface/checkUserIfCharge',
-        params: data,
-        loadText
-    })
+export const checkUserIfCharge = (data, loadText) => {
+  return ajax({
+    url: '/allowInterface/checkUserIfCharge',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -104,12 +104,12 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const monthPayUse = (data, loadText) => {
-    return ajax({
-        url: '/general/monthChargePay',
-        params: data,
-        loadText
-    })
+export const monthPayUse = (data, loadText) => {
+  return ajax({
+    url: '/general/monthChargePay',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -118,12 +118,26 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const editAccountAloneData = (data, loadText) => {
-    return ajax({
-        url: '/general/editAccountAloneData',
-        params: data,
-        loadText
-    })
+export const editAccountAloneData = (data, loadText) => {
+  return ajax({
+    url: '/general/editAccountAloneData',
+    params: data,
+    loadText
+  })
+}
+
+/**
+ * 修改用户充电协议
+ * @param {*} data
+ * @param {*} loadText
+ * @returns
+ */
+export const updateAgree = (data, loadText) => {
+  return ajax({
+    url: '/general/updateAgree',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -132,12 +146,12 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const accountwalletverify = (data, loadText) => {
-    return ajax({
-        url: '/general/accountwalletverify',
-        params: data,
-        loadText
-    })
+export const accountwalletverify = (data, loadText) => {
+  return ajax({
+    url: '/general/accountwalletverify',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -146,12 +160,12 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const queryOfflineCard = (data, loadText) => {
-    return ajax({
-        url: '/allowInterface/queryOfflineCard',
-        params: data,
-        loadText
-    })
+export const queryOfflineCard = (data, loadText) => {
+  return ajax({
+    url: '/allowInterface/queryOfflineCard',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -160,12 +174,12 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const offlineCardCharge = (data, loadText) => {
-    return ajax({
-        url: '/allowInterface/offlineCardCharge',
-        params: data,
-        loadText
-    })
+export const offlineCardCharge = (data, loadText) => {
+  return ajax({
+    url: '/allowInterface/offlineCardCharge',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -174,12 +188,12 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const offlineCharge = (data, loadText) => {
-    return ajax({
-        url: '/wxpay/offlineCharge',
-        params: data,
-        loadText
-    })
+export const offlineCharge = (data, loadText) => {
+  return ajax({
+    url: '/wxpay/offlineCharge',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -188,13 +202,13 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const queryAddrAllPortStatus = (data, loadText) => {
-    return ajax({
-        url: '/wolfNewSendData/queryAddrAllPortStatus',
-        data,
-        method: 'post',
-        loadText
-    })
+export const queryAddrAllPortStatus = (data, loadText) => {
+  return ajax({
+    url: '/wolfNewSendData/queryAddrAllPortStatus',
+    data,
+    method: 'post',
+    loadText
+  })
 }
 
 /**
@@ -203,13 +217,13 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const portstate1 = (data, loadText) => {
-    return ajax({
-        url: '/portstate1',
-        data,
-        method: 'post',
-        loadText
-    })
+export const portstate1 = (data, loadText) => {
+  return ajax({
+    url: '/portstate1',
+    data,
+    method: 'post',
+    loadText
+  })
 }
 
 /**
@@ -218,12 +232,12 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const chargepayTest = (data, loadText) => {
-    return ajax({
-        url: '/wxpay/chargepayTest',
-        params: data,
-        loadText
-    })
+export const chargepayTest = (data, loadText) => {
+  return ajax({
+    url: '/wxpay/chargepayTest',
+    params: data,
+    loadText
+  })
 }
 
 /**
@@ -232,11 +246,11 @@ export const getChargeDataByCodeAndOpenid = (data, loadText) => {
  * @param {*} loadText
  * @returns
  */
- export const removeClient = (data, loadText) => {
-    return ajax({
-        url: '/general/removeClient',
-        data,
-        method: 'post',
-        loadText
-    })
+export const removeClient = (data, loadText) => {
+  return ajax({
+    url: '/general/removeClient',
+    data,
+    method: 'post',
+    loadText
+  })
 }

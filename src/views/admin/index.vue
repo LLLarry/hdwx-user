@@ -107,16 +107,61 @@
     </div>
     <!-- 用户信息 -->
     <edit-user v-model="editUserIsshoow" :user="user" />
+    <!-- 展示余额转让钱包 -->
+    <hd-popup v-model="showToWallet">
+      <h2 class="text-center padding-y-2">钱包列表</h2>
+      <ul class="wallets-list">
+        <li class="wallets-item bg-gray rounded margin-bottom-4" v-for="item in 5" :key="item">
+          <div class="top d-flex justify-content-between text-size-sm bg-success padding-2 text-white">
+            <div class="d-flex flex-column align-items-center flex-1">
+              <span class="margin-bottom-2">充值余额</span>
+              <span>&yen; 3.00</span>
+            </div>
+            <div class="d-flex flex-column align-items-center flex-1">
+              <span class="margin-bottom-2">赠送余额</span>
+              <span>&yen; 0.00</span>
+            </div>
+          </div>
+          <hd-card class="text-size-sm padding-1 text-333">
+            <hd-card-item>
+              <span>所属小区：</span>
+              <span>2</span>
+            </hd-card-item>
+            <hd-card-item>
+              <span>所属商户：</span>
+              <span>2</span>
+            </hd-card-item>
+            <hd-card-item>
+              <span>商户电话：</span>
+              <span>15538141212</span>
+            </hd-card-item>
+            <hd-card-item>
+              <span>钱包ID：</span>
+              <span>0001234</span>
+            </hd-card-item>
+          </hd-card>
+          <div class="d-flex justify-content-center padding-bottom-2">
+            <van-button block type="primary" size="small" class="w-75" plain to="/admin/walletdetail/2">余额转让</van-button>
+          </div>
+        </li>
+      </ul>
+    </hd-popup>
   </div>
 </template>
 
 <script>
 import { defineComponent, ref, computed } from '@vue/composition-api'
 import EditUser from '@/components/admin/edit-user'
+import HdPopup from '@/components/hd-popup'
+import HdCard from '@/components/hd-card'
+import HdCardItem from '@/components/hd-card-item'
 import { accountCentre } from '@/require/admin'
 export default defineComponent({
   components: {
-    EditUser
+    EditUser,
+    HdPopup,
+    HdCard,
+    HdCardItem
   },
   setup(props, context) {
     const editUserIsshoow = ref(false)
@@ -173,6 +218,9 @@ export default defineComponent({
         path: ''
       }
     ]
+
+    // 是否展示余额转让列表
+    const showToWallet = ref(true)
     return {
       menus,
       editUserIsshoow,
@@ -181,7 +229,8 @@ export default defineComponent({
       wallets,
       exisWallets,
       totalWalletMoney,
-      getData
+      getData,
+      showToWallet
     }
   }
 })
@@ -220,6 +269,23 @@ export default defineComponent({
     &::after {
       content: '';
       font-size: 16px;
+    }
+  }
+  .wallets-list {
+    max-height: 60vh;
+    overflow: auto;
+    .wallets-item {
+      .top {
+        border-radius: 6px 6px 0 0;
+        &>div {
+          &:last-child {
+            border-left: 1px solid #fff;
+          }
+        }
+      }
+      &::v-deep .hd-card-item {
+        padding: 2px !important;
+      }
     }
   }
 }

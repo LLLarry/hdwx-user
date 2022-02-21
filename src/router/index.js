@@ -101,6 +101,18 @@ const routes = [
         /* webpackChunkName: "offline-recharge" */ '../views/charge/offline-recharge/index.vue'
       )
   },
+
+  {
+    path: '/testoffline',
+    name: 'testoffline',
+    component: () =>
+      import(
+        /* webpackChunkName: "testoffline" */ '../views/virtual/testoffline/index.vue'
+      ),
+    meta: {
+      title: '测试离线充值机'
+    }
+  },
   // 支付测试
   // {
   //   path: '/paytest',
