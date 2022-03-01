@@ -1,8 +1,7 @@
 <template>
   <div class="hd-popup">
-    {{ show }}
     <van-popup
-      v-model="show"
+      v-model="isShow"
       class="popup padding-2 border-box w-75 rounded-md overflow-auto"
     >
       <slot />
@@ -23,6 +22,16 @@ export default {
     config: {
       type: Object,
       default: () => ({})
+    }
+  },
+  computed: {
+    isShow: {
+      set (value) {
+        this.$emit('input', value)
+      },
+      get () {
+        return this.show
+      }
     }
   }
 }

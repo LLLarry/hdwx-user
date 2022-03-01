@@ -5,8 +5,9 @@ import store from '@/store'
 const blackList = ['/admin']
 export default router => {
   router.beforeEach(async (to, from, next) => {
-    if (blackList.some(path => to.path.startsWith(path))) {
-      next('/')
+    if (blackList.some(path => to.path.includes(path))) {
+      // next('/')
+      next()
       // if (getType(store.state.user && store.state.user.id) === 'undefined') {
       //   const { code } = await store.dispatch('getAccount')
       //   if (code === 200) {

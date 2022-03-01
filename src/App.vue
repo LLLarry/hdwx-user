@@ -34,6 +34,7 @@ export default {
   },
   beforeMount() {
     /* 在页面挂载之前删除加载loading */
+    // eslint-disable-next-line no-unreachable
     const loadingBox = document.querySelector('.loading-box')
     if (loadingBox) {
       loadingBox.parentNode.removeChild(loadingBox)

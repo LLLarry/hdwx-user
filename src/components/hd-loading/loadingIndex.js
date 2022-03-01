@@ -3,14 +3,14 @@ import loadingComponent from './index.vue'
 
 const LoadingConstructor = vue.extend(loadingComponent)
 
-// let toastDom, el
-const toastDom = {}
+// let vmMap, el
+const vmMap = {} // key 对应组件实例
 const el = {}
 
 function showLoading ({ title, type, duration = 2000, key = 'key' }) {
-  if (!el[key] && !toastDom[key]) {
+  if (!el[key] && !vmMap[key]) {
     el[key] = document.createElement('div')
-    toastDom[key] = new LoadingConstructor({
+    vmMap[key] = new LoadingConstructor({
       el: el[key],
       data () {
         return {
@@ -20,16 +20,16 @@ function showLoading ({ title, type, duration = 2000, key = 'key' }) {
       }
     })
     // 添加节点
-    document.body.appendChild(toastDom[key].$el)
+    document.body.appendChild(vmMap[key].$el)
   } else {
-    toastDom[key].title = title
-    toastDom[key].isShow = true
+    vmMap[key].title = title
+    vmMap[key].isShow = true
   }
 }
 
 function cancelLoading (key = 'key') {
-  if (toastDom[key]) {
-    toastDom[key].isShow = false
+  if (vmMap[key]) {
+    vmMap[key].isShow = false
   }
 }
 

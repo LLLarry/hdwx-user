@@ -117,12 +117,12 @@
             </li>
           </ul>
           <!-- 用戶充电协议 -->
-          <charge-agreement
+          <!-- <charge-agreement
             v-model="agreementIsShow"
             ref="agreement"
             :chargeTip="chargeTip"
             :uid="uid"
-          />
+          /> -->
 
           <div class="padding-x-3 margin-top-4">
             <van-button type="primary" block round @click="knowBack"
@@ -137,11 +137,11 @@
 
 <script>
 import { editAccountAloneData } from '@/require/charge'
-import ChargeAgreement from '@/components/charge/charge-agreement'
+// import ChargeAgreement from '@/components/charge/charge-agreement'
 export default {
-  components: {
-    ChargeAgreement
-  },
+  // components: {
+  //   ChargeAgreement
+  // },
   props: {
     code: {
       type: String
@@ -221,10 +221,10 @@ export default {
     },
     knowBack() {
       // 先判断用户服务协议是否同意，不同意就提示
-      if (!this.$refs.agreement.checked) {
-        this.agreementIsShow = true
-        return false
-      }
+      // if (!this.$refs.agreement.checked) {
+      //   this.agreementIsShow = true
+      //   return false
+      // }
       if (this.checked) {
         // 更改数据
         editAccountAloneData(

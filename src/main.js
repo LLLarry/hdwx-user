@@ -28,6 +28,7 @@ import VueMeta from 'vue-meta'
 import bus from '@/utils/bus'
 import qrcode from 'vue-qrcode2'
 import Navigation from 'vue-navigation'
+import wx from 'weixin-js-sdk'
 import {
   Button,
   Icon,
@@ -114,6 +115,7 @@ Vue.mixin({
     }
   }
 })
+Window.prototype.wx = wx
 
 new Vue({
   router,

@@ -61,7 +61,7 @@
             </div>
           </div>
         </router-link>
-        <li class="flex-1 padding-left-1 h-100">
+        <li class="flex-1 padding-left-1 h-100" @click="showToWalletFn">
           <div class="bg-gray padding-2 rounded-md position-relative">
             <div class="margin-bottom-2 text-size-sm">
               余额转让
@@ -220,7 +220,10 @@ export default defineComponent({
     ]
 
     // 是否展示余额转让列表
-    const showToWallet = ref(true)
+    const showToWallet = ref(false)
+    const showToWalletFn = () => {
+      showToWallet.value = true
+    }
     return {
       menus,
       editUserIsshoow,
@@ -230,7 +233,8 @@ export default defineComponent({
       exisWallets,
       totalWalletMoney,
       getData,
-      showToWallet
+      showToWallet,
+      showToWalletFn
     }
   }
 })
