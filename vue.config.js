@@ -42,5 +42,11 @@ module.exports = {
             }
 
         }
+    },
+    chainWebpack: config => {
+        // 移除 prefetch 插件 prefetch：一种利用浏览器的空闲时间加载页面将来可能用到的资源的一种机制；通常可以用于加载非首页的其他页面所需要的资源，以便加快后续页面的首屏速度；
+        config.plugins.delete('prefetch')
+        // 移除 preload 插件 preload：加载的资源是在浏览器渲染机制之前进行处理的，并且不会阻塞onload事件；
+        config.plugins.delete('preload')
     }
 }
