@@ -2,8 +2,8 @@
 module.exports = {
     proxy: {
         open: true, // 是否开启代理
-        target: 'http://www.tengfuchong.com.cn' // 代理目标源, 更改代理目标源之后要重启项目
-        // target: 'http://www.he360.cn'
+        // target: 'http://www.tengfuchong.com.cn' // 代理目标源, 更改代理目标源之后要重启项目
+        target: 'http://www.he360.cn'
     },
     env: {
         // 正式环境

@@ -112,135 +112,13 @@ const routes = [
     meta: {
       title: '测试离线充值机'
     }
-  },
+  }
   // 支付测试
   // {
   //   path: '/paytest',
   //   name: 'paytest',
   //   component: () => import(/* webpackChunkName: "paytest" */ '../views/About.vue')
   // },
-  {
-    path: '/admin',
-    name: 'admin',
-    component: () =>
-      import(/* webpackChunkName: "admin" */ '../views/admin/index.vue'),
-    meta: {
-      title: '个人中心',
-      tabbar: true
-    }
-  },
-  {
-    path: '/admin/walletlist',
-    name: 'wallet-list',
-    component: () =>
-      import(
-        /* webpackChunkName: "wallet-list" */ '../views/admin/wallet/wallet-list/index.vue'
-      ),
-    meta: {
-      title: '钱包列表'
-    }
-  },
-  {
-    path: '/admin/walletdetail/:id',
-    name: 'wallet-detail',
-    // props: true,
-    component: () =>
-      import(
-        /* webpackChunkName: "wallet-detail" */ '../views/admin/wallet/wallet-detail/index.vue'
-      ),
-    meta: {
-      title: '钱包详情'
-    }
-  },
-  {
-    path: '/admin/transfer-result',
-    name: 'transfer-result',
-    props: true,
-    component: () =>
-      import(
-        /* webpackChunkName: "transfer-result" */ '../views/admin/wallet/transfer-result/index.vue'
-      ),
-    meta: {
-      title: '余额接收结果'
-    }
-  },
-  {
-    path: '/admin/icmanage',
-    name: 'ic-manage',
-    component: () =>
-      import(
-        /* webpackChunkName: "ic-manage" */ '../views/admin/ic/ic-manage/index.vue'
-      ),
-    meta: {
-      title: 'IC卡管理'
-    }
-  },
-  {
-    path: '/admin/nearbydevice',
-    name: 'nearby-device',
-    component: () =>
-      import(
-        /* webpackChunkName: "nearby-device" */ '../views/admin/nearby-device/index.vue'
-      ),
-    meta: {
-      title: 'IC卡管理'
-    }
-  },
-  {
-    path: '/admin/icrecharge/:cardID',
-    name: 'ic-recharge',
-    component: () =>
-      import(
-        /* webpackChunkName: "ic-recharge" */ '../views/admin/ic/ic-recharge/index.vue'
-      ),
-    meta: {
-      title: 'IC卡充值'
-    }
-  },
-  {
-    path: '/admin/monthly-package',
-    name: 'monthly-package',
-    component: () =>
-      import(
-        /* webpackChunkName: "monthly-package" */ '../views/admin/monthly-package/index.vue'
-      ),
-    meta: {
-      title: '包月管理'
-    }
-  },
-  {
-    path: '/admin/monthly-package/record',
-    name: 'monthly-package-record',
-    component: () =>
-      import(
-        /* webpackChunkName: "monthly-package-record" */ '../views/admin/monthly-package/record/index.vue'
-      ),
-    meta: {
-      title: '包月记录'
-    }
-  },
-  {
-    path: '/admin/charge-record',
-    name: 'charge-record',
-    component: () =>
-      import(
-        /* webpackChunkName: "charge-record" */ '../views/admin/charge-record/index.vue'
-      ),
-    meta: {
-      title: '充电记录'
-    }
-  },
-  {
-    path: '/admin/wallet-recoed',
-    name: 'wallet-recoed',
-    component: () =>
-      import(
-        /* webpackChunkName: "wallet-recoed" */ '../views/admin/wallet/wallet-recoed/index.vue'
-      ),
-    meta: {
-      title: '钱包消费记录'
-    }
-  }
 ]
 
 const router = new VueRouter({

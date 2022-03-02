@@ -1,10 +1,8 @@
 <template>
   <div id="app" class="text-size-md text-333">
-    <navigation>
-      <router-view v-slot="Component">
-        <component :is="Component" />
-      </router-view>
-    </navigation>
+    <router-view v-slot="Component">
+      <component :is="Component" />
+    </router-view>
     <!-- 底部菜单 -->
     <van-tabbar
       v-if="tabbarIsShow"

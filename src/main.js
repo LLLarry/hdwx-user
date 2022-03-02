@@ -8,27 +8,20 @@ import '@/assets/js/vant-helper'
 // 封装异常捕获辅助函数
 import '@/assets/js/error-helper'
 // 引入mock
-import '@/assets/js/mock'
+// import '@/assets/js/mock'
 // 引入pofilly
 import '@/assets/js/pofilly'
 // 引入全局过滤器
 import '@/filter'
-// 引入全局指令
-import '@/directive'
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
 import HdLine from '@/components/hd-line'
 import HdTitle from '@/components/hd-title'
-import HdIcon from '@/components/hd-icon'
 import loadingIndex from '@/components/hd-loading/loadingIndex'
-import VueCompositionAPI from '@vue/composition-api'
 import VueMeta from 'vue-meta'
 import bus from '@/utils/bus'
-import qrcode from 'vue-qrcode2'
-import Navigation from 'vue-navigation'
-import wx from 'weixin-js-sdk'
 import {
   Button,
   Icon,
@@ -65,7 +58,6 @@ import {
 window.sessionStorage.setItem('__init_url__', window.location.href)
 
 Vue.use(VueMeta, {
-  // optional pluginOptions
   refreshOnceOnNavigation: true
 })
 Vue.use(bus)
@@ -104,10 +96,6 @@ Vue.use(Checkbox)
 Vue.config.productionTip = false
 Vue.component('hd-line', HdLine)
 Vue.component('hd-title', HdTitle)
-Vue.component('hd-icon', HdIcon)
-Vue.use(VueCompositionAPI)
-Vue.use(qrcode)
-Vue.use(Navigation, { router, store })
 Vue.mixin({
   metaInfo() {
     return {
