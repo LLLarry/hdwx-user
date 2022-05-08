@@ -80,6 +80,12 @@ export default {
             })
         }
     },
+    mounted () {
+        // 一拖二设备进入先请求一下，获取端口状态
+        // if (this.addrnum) {
+        //     this.updatePortStatusForAddr()
+        // }
+    },
     methods: {
         // 选择端口
         handleSelectPort (item) {
@@ -142,7 +148,10 @@ export default {
                 portList = portList.map(portItem => ({ ...portItem, portStatus: map[portItem.port] }))
                 this.$parent.$data.portList = portList
             } catch (error) {
-                this.toast(error, 'fail')
+                // this.toast(error, 'fail')
+                this.alert(error).then(() => {
+                    wx.closeWindow()
+                })
             } finally {
                 this.showPopover = false
             }

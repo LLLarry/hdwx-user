@@ -7,7 +7,7 @@ import { getType } from '@/utils/util'
  * @param {Number} duration 持续时间 ms
  */
 export const toast = (message, type = '', duration = 1500) => {
-    if (message === '异常错误' && getType(type) === 'object') {
+    if ((message === '异常错误' || message === '当前端口占用中,请更换端口充电') && getType(type) === 'object') {
         const { error, vm, line } = type
         Vue.prototype.$error(error, vm, line) // 发送异常错误
         type = ''

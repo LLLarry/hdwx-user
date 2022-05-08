@@ -79,3 +79,25 @@ export const verification = (list) => {
     const color = r << 16 | g << 8 | b
     return color.toString(16)
 }
+
+/**
+ * 是否是不存在的值
+ * @param value
+ * @returns boolean
+ */
+ export const isFalsy = (value) => value === 0 ? true : !value
+
+ /**
+  * 删除值为null、undefined、''、 NaN的键
+  * @param targetObj 目标元素
+  * @returns 格式化之后的值
+  */
+ export const cleanObject = (targetObj) => {
+   const result = Object.assign({}, targetObj)
+   Object.entries(result).forEach(([key, value]) => {
+     if (isFalsy(value)) {
+       delete result[key]
+     }
+   })
+   return result
+ }

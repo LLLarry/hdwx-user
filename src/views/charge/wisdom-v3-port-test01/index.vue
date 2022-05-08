@@ -367,22 +367,6 @@ export default {
                     this.alert('当前端口已被占用，请更换端口使用').then(() => {
                         wx.closeWindow()
                     })
-                    // // 检验当前使用端口能否作为本人续充端口使用
-                    // verifiUserIfCharge({
-                    //     openid: this.openid,
-                    //     code: this.code,
-                    //     port: this.selectPort
-                    // })
-                    // .then(orderid => {
-                    //     if (orderid) { // 判断orderid是否存在
-                    //         this.orderid = orderid
-                    //     }
-                    // }).catch(e => {
-                    //     // 当前端口不支持续充
-                    //    this.alert(e).then(() => {
-                    //        wx.closeWindow()
-                    //    })
-                    // })
                 }
             } else {
                 // this.alert('未查询到端口状态').then(res => {

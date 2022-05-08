@@ -204,7 +204,7 @@ export default {
         handleSelectPort ({ port, portStatus }) {
             if (portStatus === 3 || portStatus === 4) { // 故障端口
                 this.toast('此端口为故障端口')
-            } else if (portStatus === 1) { // 空闲端口
+            } else if (portStatus === 1 || portStatus === 5) { // 空闲端口
                 this.selectPort = port
                 this.show = true
             } else { // 使用端口

@@ -61,14 +61,12 @@ export default {
     async getInit () {
       try {
         const { code, msg, starttime: nowtime } = await testType4Equipment({
-          code: this.code
+          deviceCode: this.code
         })
-        if (code === 200) {
+        if (Number(code) === 200) {
           this.nowtime = nowtime
           this.readICcardIndo()
         } else {
-          this.nowtime = nowtime
-          this.readICcardIndo()
           this.alert(msg).then(() => {
             wx.closeWindow()
           })
@@ -86,7 +84,7 @@ export default {
           openid: this.openid,
           nowtime: this.nowtime
         })
-        if (code === 200) {
+        if (Number(code) === 200) {
           this.cardSurp = cardSurp
           this.cardId = cardId
         } else {
@@ -110,11 +108,11 @@ export default {
         }
         const { code, massage } = await testofflineCharge({
           openid: this.openid,
-          code: this.code,
+          deviceCode: this.code,
           card_id: this.cardId,
           card_ope: this.list.find(item => item.id === this.selectId).moeny
         })
-        if (code === 200) {
+        if (Number(code) === 200) {
           this.alert('充值下发成功').then(() => {
             wx.closeWindow()
           })

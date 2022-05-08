@@ -415,7 +415,12 @@ export default {
           this.walletRechargeUrl = `/general/walletcharge?from=1&openid=${this.openid}&aid=${this.aid}&dealid=${this.merid}&deviceNum=${this.code}&port=${this.selectPort}&ctempid=${this.selectTempId}&tempname=${tempname}`
           this.$refs.chargeOverlay.show = true
         } else {
-          this.toast(message)
+          // this.toast(message)
+          if (message === '当前端口占用中,请更换端口充电') {
+            this.toast('当前端口占用中,请更换端口充电', { error: { stack: '【V3设备不支持续充】' }, vm: this, line: 466 })
+          } else {
+            this.toast(message)
+          }
         }
       } catch (error) {
         this.toast('异常错误', { error, vm: this, line: 365 })

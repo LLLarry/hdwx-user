@@ -65,6 +65,7 @@ export const deviceCharge = (data, loadText) => {
 export const chargepay = (data, loadText) => {
   return ajax({
     url: '/wxpay/chargepay',
+    // url: '/wxpay/chargepayTenant',
     params: data,
     loadText
   })
@@ -204,7 +205,8 @@ export const offlineCharge = (data, loadText) => {
  */
 export const queryAddrAllPortStatus = (data, loadText) => {
   return ajax({
-    url: '/wolfNewSendData/queryAddrAllPortStatus',
+    // url: '/wolfNewSendData/queryAddrAllPortStatus',
+    url: '/wolfNewSendData/queryAddrPortStatus',
     data,
     method: 'post',
     loadText

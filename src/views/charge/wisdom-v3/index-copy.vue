@@ -11,7 +11,7 @@
         ></Header>
         <main class="padding-top-2 flex-1">
             <!-- <select-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" /> -->
-            <charge-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" />
+            <charge-port ref="charge-port" :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" />
 
             <div class="position-absolute reload-box d-flex align-items-center justify-content-center text-size-md" v-if="addrnum">
                 <span>如端口状态与实际不符，请点击</span>
@@ -211,10 +211,11 @@ export default {
         }
     },
     methods: {
+        // 1 空闲 2 占用 3禁用 4故障 5充满或浮充
         handleSelectPort ({ port, portStatus }) {
             if (portStatus === 3 || portStatus === 4) { // 故障端口
                 this.toast('此端口为故障端口')
-            } else if (portStatus === 1) { // 空闲端口
+            } else if (portStatus === 1 || portStatus === 5) { // 空闲端口 / 充满或浮充； 老王让加的充满或浮充可以充电
                 this.selectPort = port
                 this.show = true
             } else { // 使用端口

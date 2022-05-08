@@ -12,6 +12,7 @@
     <main class="padding-top-2 flex-1 overflow-auto">
       <!-- <select-port :list="portList" :selectPort="selectPort" @selectPortBack="handleSelectPort" /> -->
       <charge-port
+        ref="charge-port"
         :list="portList"
         :selectPort="selectPort"
         :nowtime="nowtime"
@@ -82,6 +83,7 @@
 </template>
 
 <script>
+import qs from 'qs'
 import Header from '@/components/charge/header'
 import Footer from '@/components/charge/footer'
 // import selectPort from '@/components/charge/select-port'
@@ -94,7 +96,7 @@ import chargeOverlay from '@/components/charge/charge-overlay'
 import { paytypeMap } from '@/components/charge/select-paytype'
 import ChargeV3Contral from '@/components/charge/charge-v3-contral'
 import walletList from '@/components/charge/wallet-list'
-import { verification, fmtMoney, getType } from '@/utils/util'
+import { verification, fmtMoney, getType, cleanObject } from '@/utils/util'
 import { deviceCharge, walletChargePay } from '@/require/charge'
 import {
   /* verifiUserIfCharge, */ wxPayFun,
@@ -234,7 +236,7 @@ export default {
       if (portStatus === 3 || portStatus === 4) {
         // 故障端口
         this.toast('此端口为故障端口')
-      } else if (portStatus === 1) {
+      } else if (portStatus === 1 || portStatus === 5) {
         // 空闲端口
         this.selectPort = port
         this.show = true
@@ -357,6 +359,10 @@ export default {
             wx.closeWindow()
           })
         }
+        // 一拖二设备获取端口状态 014316
+        if (this.addrnum && this.code === '014316') {
+            this.$refs['charge-port'].updatePortStatusForAddr()
+        }
       } catch (error) {
         this.alert('异常错误', { error, vm: this, line: 290 }).then(() => {
           wx.closeWindow()
@@ -458,11 +464,30 @@ export default {
               item => item.id === this.selectMoneyTempId
             ).name
           }
+          const ctempid = this.chageType === 0 ? this.selectTimeTempId : this.selectMoneyTempId
           // 生成钱包充值跳转路径
-          this.walletRechargeUrl = `/general/walletcharge?from=1&openid=${this.openid}&aid=${this.aid}&dealid=${this.merid}&deviceNum=${this.code}&port=${this.selectPort}&ctempid=${this.selectTempId}&tempname=${tempname}`
+          const searchString = qs.stringify(
+            cleanObject({
+              from: 1,
+              openid: this.openid,
+              aid: this.aid,
+              dealid: this.merid,
+              deviceNum: this.code,
+              port: this.selectPort,
+              ctempid,
+              tempname,
+              addrnum: this.addrnum
+            })
+          )
+          // `/general/walletcharge?from=1&openid=${this.openid}&aid=${this.aid}&dealid=${this.merid}&deviceNum=${this.code}&port=${this.selectPort}&ctempid=${ctempid}&tempname=${tempname}&addrnum=${this.addrnum}`
+          this.walletRechargeUrl = `/general/walletcharge?${searchString}`
           this.$refs.chargeOverlay.show = true
         } else {
-          this.toast(message)
+          if (message === '当前端口占用中,请更换端口充电') {
+            this.toast('当前端口占用中,请更换端口充电', { error: { stack: '【V3设备不支持续充】' }, vm: this, line: 466 })
+          } else {
+            this.toast(message)
+          }
         }
       } catch (error) {
         this.toast('异常错误', { error, vm: this, line: 371 })
