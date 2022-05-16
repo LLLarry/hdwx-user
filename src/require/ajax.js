@@ -1,7 +1,8 @@
 import axios from 'axios'
 import Qs from 'qs'
 import Vue from 'vue'
-import { getRamdom } from '@/utils/util'
+import { getRamdom, deepClone } from '@/utils/util'
+import store from '../store'
 const { BASE_URL } = HDWX_USER
 // import { Dialog } from 'vant'
 // import store from '@/store'
@@ -19,6 +20,7 @@ const server = axios.create({
 
 server.interceptors.request.use(
   config => {
+    config = addTenantId(config)
     return {
       ...config,
       url: api + config.url
@@ -109,4 +111,22 @@ export default ({
         })
     })
   }
+}
+
+// 增加tenantId
+function addTenantId (config) {
+  const copyConfig = deepClone(config)
+  if (copyConfig.method.toLowerCase() === 'get') {
+    copyConfig.params = {
+      ...copyConfig.params,
+      tenantId: store.state.user.tenantId
+    }
+  } else if (copyConfig.method.toLowerCase() === 'post') {
+    const data = Qs.parse(copyConfig.data)
+    copyConfig.data = Qs.stringify({
+      ...data,
+      tenantId: store.state.user.tenantId
+    })
+  }
+  return copyConfig
 }

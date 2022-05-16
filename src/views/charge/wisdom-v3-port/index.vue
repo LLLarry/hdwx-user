@@ -47,6 +47,7 @@
 </template>
 
 <script>
+import qs from 'qs'
 import Header from '@/components/charge/header'
 import Footer from '@/components/charge/footer'
 // import selectPortTip from '@/components/charge/select-port-tip'
@@ -56,7 +57,7 @@ import chargeOverlay from '@/components/charge/charge-overlay'
 // import selectPaytype, { paytypeMap } from '@/components/charge/select-paytype'
 import { paytypeMap } from '@/components/charge/select-paytype'
 import walletList from '@/components/charge/wallet-list'
-import { verification, fmtMoney, getType } from '@/utils/util'
+import { verification, fmtMoney, getType, cleanObject } from '@/utils/util'
 import { deviceCharge, walletChargePay, removeClient } from '@/require/charge'
 import ChargeV3Contral from '@/components/charge/charge-v3-contral'
 import {
@@ -411,8 +412,23 @@ export default {
               item => item.id === this.selectMoneyTempId
             ).name
           }
+
+          const ctempid = this.chageType === 0 ? this.selectTimeTempId : this.selectMoneyTempId
           // 生成钱包充值跳转路径
-          this.walletRechargeUrl = `/general/walletcharge?from=1&openid=${this.openid}&aid=${this.aid}&dealid=${this.merid}&deviceNum=${this.code}&port=${this.selectPort}&ctempid=${this.selectTempId}&tempname=${tempname}`
+          const searchString = qs.stringify(
+            cleanObject({
+              from: 1,
+              openid: this.openid,
+              aid: this.aid,
+              dealid: this.merid,
+              deviceNum: this.code,
+              port: this.selectPort,
+              ctempid,
+              tempname
+            })
+          )
+          // 生成钱包充值跳转路径
+          this.walletRechargeUrl = `/general/walletcharge?${searchString}`
           this.$refs.chargeOverlay.show = true
         } else {
           // this.toast(message)

@@ -22,7 +22,8 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations, mapState } from 'vuex'
+import { getURLParams } from '@/utils/util'
 export default {
   data() {
     return {
@@ -37,9 +38,11 @@ export default {
     if (loadingBox) {
       loadingBox.parentNode.removeChild(loadingBox)
     }
+    this.initTenantId()
   },
   computed: {
-    ...mapGetters(['cssVar'])
+    ...mapGetters(['cssVar']),
+    ...mapState(['user'])
   },
   watch: {
     $route: {
@@ -48,6 +51,21 @@ export default {
         this.active = route.path
       },
       immediate: true
+    }
+  },
+  methods: {
+    ...mapMutations(['setUser']),
+    /**
+     * 初始化tenantId
+     */
+    initTenantId () {
+      const initUrl = window.sessionStorage.getItem('__init_url__') || ''
+      console.log(getURLParams(initUrl))
+      const tenantId = getURLParams(initUrl).tenantId
+      this.setUser({
+        ...this.user,
+        tenantId: Number.isNaN(Number(tenantId)) ? undefined : Number(tenantId)
+      })
     }
   }
 }

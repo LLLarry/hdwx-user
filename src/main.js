@@ -101,6 +101,11 @@ Vue.mixin({
     return {
       title: this.titleText || this.$route.meta.title
     }
+  },
+  computed: {
+    tenantId () {
+      return store.state.user.tenantId
+    }
   }
 })
 Window.prototype.wx = wx

@@ -1,4 +1,5 @@
 import * as dayjs from 'dayjs'
+import qs from 'qs'
 import Vue from 'vue'
 
 /**
@@ -101,3 +102,35 @@ export const verification = (list) => {
    })
    return result
  }
+
+ /**
+ * 深度克隆
+ * @param obj
+ * @returns
+ */
+export const deepClone = (obj) => {
+    if (obj instanceof RegExp) return new RegExp(obj)
+    if (obj instanceof Date) return new Date(obj)
+    if (typeof obj !== 'object' || obj === null) {
+      return obj
+    }
+    const map = new obj.constructor()
+    for (const [key, value] of Object.entries(obj)) {
+      map[key] = deepClone(value)
+    }
+    return map
+  }
+
+/**
+ * 获取地址中的参数
+ * @param {*} url 参数 [可选] 不传默认获取地址中的参数
+ * @returns map { key: value }
+ */
+export const getURLParams = (url) => {
+    url = url || window.location.search
+    const index = url.indexOf('?')
+    if (index !== -1) {
+        url = url.substring(index + 1)
+    }
+    return qs.parse(url)
+}
